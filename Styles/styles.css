@@ -30,3 +30,12 @@ h1 {
 	width: 512px;
 	height: 512px;
 }
+
+#FileInput {
+	border: 1px;
+}
+
+
+INPUT[type='file'] {
+	background-color: silver;
+}

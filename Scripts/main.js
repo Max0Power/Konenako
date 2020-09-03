@@ -5,94 +5,88 @@
  
 "use strict";
 
+// TODO: luokka Character, kirjoitetaan omaan javascript tiedostoon
+// TODO: luokka CharacterGroup, kirjoitetaan omaan javasctript tiedostoon
+
 
 /**
  * Sivuston valmistuessa asetetaan ohjelman päätoiminnot eli kuvan analysointi
  */
 window.onload = function() {
-	// Haetaan Käyttäjän syöte komponentti:
-	var fileInput = document.getElementById("FileInput");
 	// Haetaan TextArea, joka toimii OutPuttina:
 	var textOutput = document.getElementById("TextOutput");
-	textOutput.value = "Work in progress... ... ..."; // <------------------------------- TODO: Poista tai aseta output textareaan tutoriaali teksti... esim. "Convert your image to text"... 
-	// Asetetaan eventti käyttäjän antaessa tiedosto:
-	fileInput.addEventListener("change", function(e) {
-		// Luodaan kuva elementti ja asetetaan sourceksi käyttäjän ohjelmalle syöttämä kuva:
-		var img = new Image();
+	textOutput.value = "Work in progress... ... ..."; // <------------------------------- TODO: Poista tai aseta output textareaan tutoriaali teksti... esim. "Convert your image to text"...
+
+	analyzeUserInput();
+}
+
+function analyzeUserInput() {	
+	// Luodaan kuva elementti ja asetetaan sourceksi käyttäjän ohjelmalle syöttämä kuva:
+	var img = new Image();
+	
+		// Haetaan Käyttäjän syöte komponentti:
+	var fileInput = document.getElementById("FileInput");
+		if (fileInput.files.length > 0) {
 		img.src = URL.createObjectURL(fileInput.files[0]);
-		// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
-		img.onload = function(e) {
-			var pixels = readImageToPixelArray(img);
-			
-			// TODO: PixelsToTextAnalyzer --> jonka tehtävä on tunnistaa kuvasta löytyvä teksti ja kirjoittaa se tektilaatikkoon
-			
-			textOutput.value = "First Pixel Color Is: " + pixels[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
+	}
+	else {
+		img.src = "Images/Example.png";
+	}
+	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
+	img.onload = function(e) {
+		var pixelArray = readImageToGrayscalePixelArray(img);
+		
+		// Merkkien etsiminen ja ryhmayttaminen:
+		var characterGroups = groupCharacters(findCharacters(pixelArray));
+		
+		// Outputin kirjoittaminen tekstiksi:
+		var txt = "";
+		for (var i = 0; i < characterGroups.length; i++) {
+			txt = txt + characterGroups[i].toString();
+			if (characterGroups[i].lineBreak === true) txt = txt + "/n";
+			else if (i < chracterGroups.length - 1) txt = txt + " ";
 		}
-	});
+		
+		document.getElementById("TextOutput").value = "First Pixel Color Is: " + pixelArray[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
+		
+		drawPixelArray(pixelArray);
+	}
 }
 
 
-/**
- * Lukee ladatun kuvan datan kaksiulotteiseksi pikselitaulukoksi, joka syötetaan PixelsToTextAnalysoijalle
- * @param {Image} img - Latautunut Image elementti, josta pikselit luetaan
- * @return {Two dimensional Pixel array} - Palauttaa kaksi ulotteisen pikseli taulukon kuvasta --> koostuu Pixel olioista, jotka sisältävät 
- */
-function readImageToPixelArray(img) {
+function drawPixelArray(pixelArray) {
+	var canvas = document.getElementById("Grayscale");
 	
-	// Luodaan kanvas, johon kuva piirretaan valiaikaisesti:
-	var canvas = document.createElement("canvas");
-	canvas.width = img.naturalWidth;
-	canvas.height = img.naturalHeight;
-	// Kuvan piirto kanvakselle:
+	canvas.width = pixelArray.length;
+	canvas.height = pixelArray[0].length;
+	
 	var ctx = canvas.getContext("2d");
-	ctx.drawImage(img, 0, 0);
-	// Otetaan kuvan data, joka on yksiulotteinen taulukko:
-	var imgData = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data;
-	// Luodaan palautettava pikselitaulukko ja otetaan kuvan datasta pikselit:
-	var pixelArray = new Array(img.naturalWidth);
-	var imgDataPixelIndex = 0;
-	for (var x = 0; x < img.naturalWidth; x++) {
-		var tmpArray = new Array(img.naturalHeight);
-		for (var y = 0; y < img.naturalHeight; y++) {
-			tmpArray[y] = new Pixel(imgData[imgDataPixelIndex], imgData[imgDataPixelIndex+1], imgData[imgDataPixelIndex+2], imgData[imgDataPixelIndex+3]);
-			imgDataPixelIndex += 4;
+	
+	var imgData = ctx.createImageData(pixelArray.length, pixelArray[0].length);
+	var data = imgData.data;
+	var imageDataIndex = 0;
+	for (var x = 0; x < pixelArray.length; x++) {
+		for (var y = 0; y < pixelArray[0].length; y++) {
+			data[imageDataIndex] = pixelArray[x][y].r;
+			data[imageDataIndex + 1] = pixelArray[x][y].g;
+			data[imageDataIndex + 2] = pixelArray[x][y].b;
+			data[imageDataIndex + 3] = pixelArray[x][y].a;
+			imageDataIndex += 4;
 		}
-		pixelArray[x] = tmpArray;
 	}
-	// Palautetaan lopuksi kuvasta saatu pikselitaulukko:
-	return pixelArray;
+	
+	ctx.putImageData(imgData, 0, 0);
+	
+	
+	
 }
 
-/**
- * Luokka pikselille, joka sisältää yksittäisen pikselin värin
- */
-class Pixel {
-	
-	/**
-	 * Muodostaja pikselille, joka sisaltaa pikselin varin RGBA formaatissa:
-	 * @param {number 0-255} r - punasen värin määrä
-	 * @param {number 0-255} g - vihreän värin määrä
-	 * @param {number 0-255} b - sinisen värin määrä
-	 * @param {number 0-255} a - läpinäkyvyys
-	 */
-	constructor(r, g, b, a) {
-		// Tarkistus, etta luvut ovat valilla [0, 255]
-		if (r < 0) r = 0;
-		if (g < 0) g = 0;
-		if (b < 0) b = 0;
-		if (a < 0) a = 0;
-		if (r > 255) r = 255;
-		if (g > 255) g = 255;
-		if (b > 255) b = 255;
-		if (a > 255) a = 255;
-		// Varien asetus oliolle
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.a = a;
+function toggleImage() {
+	var toggle = document.getElementById("ToggleImage");
+	if (toggle.checked) {
+		document.getElementById("Grayscale").style.display = "block";
 	}
-	
-	toString() {
-		return this.r + ", " + this.g + ", " + this.b + ", " + this.a;
+	else {
+		document.getElementById("Grayscale").style.display = "none";
 	}
 }

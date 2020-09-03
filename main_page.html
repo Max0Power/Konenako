@@ -9,6 +9,9 @@
 		<!-- Styles: Styles/name.css -->
 		<link rel="stylesheet" href="Styles/styles.css" />
 		<!-- Scripts: Scritps/name.js -->
+		<script src="Scripts/character_detection.js"></script>
+		<script src="Scripts/character_group_detection.js"></script>
+		<script src="Scripts/pixel_filttering.js"</script>
 		<script src="Scripts/main.js"></script>
 		<title>Image To Text Generator</title>
 	</head>
@@ -16,7 +19,8 @@
 	<body>
 		<h1>IMAGE TO TEXT GENERATOR</h1>
 		<div id="FileDiv">
-			<input type="file" id="FileInput" multiple size="1" accept="image/x-png, image/jpeg"><br>
+			<input type="file" id="FileInput" multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()><label><input type="checkbox" id="ToggleImage" onclick=toggleImage()></label><br>
+			<canvas id="Grayscale"></canvas><br>	
 			<textarea id="TextOutput"></textarea>
 		</div>
 	</body>
