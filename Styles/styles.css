@@ -1,0 +1,32 @@
+/**
+ * @author Jussi Parviainen ja Harri Linna
+ * @version 02.09.2020
+ */
+ 
+ html, body, h1, h2, h3, h4, h5, h6 {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+html, body {
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	background-color: #F0F8FF;
+}
+
+h1 {
+	text-align: center;
+}
+
+#FileDiv {
+    display: table;
+    margin: 0 auto;
+}
+
+#TextOutput {
+	width: 512px;
+	height: 512px;
+}
