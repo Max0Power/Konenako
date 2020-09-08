@@ -34,10 +34,11 @@ function analyzeUserInput() {
 	}
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {
-		var pixelArray = readImageToGrayscalePixelArray(img);
+	    var g_m = readImageToGrayscaleMatrix(img);
+	    var bw_m = convertGrayscaleToBlackAndWhite(g_m);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
-		var characterGroups = groupCharacters(findCharacters(pixelArray));
+		var characterGroups = groupCharacters(findCharacters(bw_m));
 		
 		// Outputin kirjoittaminen tekstiksi:
 		var txt = "";
@@ -47,30 +48,30 @@ function analyzeUserInput() {
 			else if (i < chracterGroups.length - 1) txt = txt + " ";
 		}
 		
-		document.getElementById("TextOutput").value = "First Pixel Color Is: " + pixelArray[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
+		document.getElementById("TextOutput").value = "First Pixel Color Is: " + bw_m[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
 		
-		drawPixelArray(pixelArray);
+		drawPixelArray(bw_m);
 	}
 }
 
 
-function drawPixelArray(pixelArray) {
+function drawPixelArray(matrix) {
 	var canvas = document.getElementById("Grayscale");
 	
-	canvas.width = pixelArray.length;
-	canvas.height = pixelArray[0].length;
+	canvas.width = matrix.length;
+	canvas.height = matrix[0].length;
 	
 	var ctx = canvas.getContext("2d");
 	
-	var imgData = ctx.createImageData(pixelArray.length, pixelArray[0].length);
+	var imgData = ctx.createImageData(matrix.length, matrix[0].length);
 	var data = imgData.data;
 	var imageDataIndex = 0;
-	for (var x = 0; x < pixelArray.length; x++) {
-		for (var y = 0; y < pixelArray[0].length; y++) {
-			data[imageDataIndex] = pixelArray[x][y].r;
-			data[imageDataIndex + 1] = pixelArray[x][y].g;
-			data[imageDataIndex + 2] = pixelArray[x][y].b;
-			data[imageDataIndex + 3] = pixelArray[x][y].a;
+	for (var x = 0; x < matrix.length; x++) {
+		for (var y = 0; y < matrix[0].length; y++) {
+			data[imageDataIndex] = matrix[x][y];
+			data[imageDataIndex + 1] = matrix[x][y];
+			data[imageDataIndex + 2] = matrix[x][y];
+		        data[imageDataIndex + 3] = 255;
 			imageDataIndex += 4;
 		}
 	}

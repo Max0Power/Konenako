@@ -7,11 +7,12 @@
 
 
 /**
- * Lukee ladatun kuvan datan kaksiulotteiseksi pikselitaulukoksi, joka syötetaan PixelsToTextAnalysoijalle
+ * Lukee ladatun kuvan datan grayscale-matriisiksi
  * @param {Image} img - Latautunut Image elementti, josta pikselit luetaan
- * @return {Pixel[][]} - Palauttaa kaksi ulotteisen pikseli taulukon kuvasta --> koostuu Pixel olioista, jotka sisältävät pikselin varin
+ * @return {Number[][]} - Palauttaa kaksi ulotteisen numero taulukon,
+ * josta saa grayscalen
  */
-function readImageToGrayscalePixelArray(img) {
+function readImageToGrayscaleMatrix(img) {
 	
 	// Luodaan kanvas, johon kuva piirretaan valiaikaisesti:
 	var canvas = document.createElement("canvas");
@@ -24,54 +25,74 @@ function readImageToGrayscalePixelArray(img) {
 	ctx.drawImage(img, 0, 0);
 	// Otetaan kuvan data, joka on yksiulotteinen taulukko:
 	var imgData = ctx.getImageData(0, 0, img.naturalWidth, img.naturalHeight).data;
-	// Luodaan palautettava pikselitaulukko ja otetaan kuvan datasta pikselit:
-	var pixelArray = new Array(img.naturalWidth);
+	// Luodaan palautettava matriisi ja lasketaan siihen kuvan
+	// yksittäisen pikselin keksiarvo:
+	var matrix = new Array(img.naturalWidth);
 	var imgDataPixelIndex = 0;
 	for (var x = 0; x < img.naturalWidth; x++) {
 		var tmpArray = new Array(img.naturalHeight);
 		for (var y = 0; y < img.naturalHeight; y++) {
-			var average = (imgData[imgDataPixelIndex] + imgData[imgDataPixelIndex+1] + imgData[imgDataPixelIndex+2]) / 3.0;
-			tmpArray[y] = new Pixel(average, average, average, imgData[imgDataPixelIndex+3]);
-			imgDataPixelIndex += 4;
+			tmpArray[y] = (imgData[imgDataPixelIndex] + imgData[imgDataPixelIndex+1] + imgData[imgDataPixelIndex+2]) / 3.0;
+		    imgDataPixelIndex += 4;
 		}
-		pixelArray[x] = tmpArray;
+		matrix[x] = tmpArray;
 	}
 
-	// Palautetaan lopuksi kuvasta saatu pikselitaulukko:
-	return pixelArray;
+	// Palautetaan lopuksi kuvasta saatu numerotaulukko:
+	return matrix;
 }
 
-
 /**
- * Luokka pikselille, joka sisältää yksittäisen pikselin värin
+ * Muuntaa grayscale-kuvan mustavalko-kuvaksi
+ * param arr {[[int]]} grayscale-matriisi
+ * return {[[int]]} mustavalko-matriisi
  */
-class Pixel {
+function convertGrayscaleToBlackAndWhite(matrix) {
+    var treshold = getMatrixAverage(matrix);
+
+    function getMatrixAverage(matrix) {
+	/*
+	var mat = matrix.slice();
+	mat = mat.map(row => getArrayAverage(row));
+	return getArrayAverage(mat);
+	*/
 	
-	/**
-	 * Muodostaja pikselille, joka sisaltaa pikselin varin RGBA formaatissa:
-	 * @param {number 0-255} r - punasen värin määrä
-	 * @param {number 0-255} g - vihreän värin määrä
-	 * @param {number 0-255} b - sinisen värin määrä
-	 * @param {number 0-255} a - läpinäkyvyys
-	 */
-	constructor(r, g, b, a) {
-		// Tarkistus, etta luvut ovat valilla [0, 255]
-		if (r < 0) r = 0;
-		if (g < 0) g = 0;
-		if (b < 0) b = 0;
-		if (a < 0) a = 0;
-		if (r > 255) r = 255;
-		if (g > 255) g = 255;
-		if (b > 255) b = 255;
-		if (a > 255) a = 255;
-		// Varien asetus oliolle
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.a = a;
+	var average = 0;
+	for (var x = 0; x < matrix.length; x++) {
+	    for (var y = 0; y < matrix[x].length; y++) {
+		average += matrix[x][y]
+	    }
 	}
-	
-	toString() {
-		return this.r + ", " + this.g + ", " + this.b + ", " + this.a;
-	}
+	return average / (matrix.length* matrix[0].length);
+    }
+
+    /*
+    function getArrayAverage(array) {
+	var arr = array.slice();
+	return arr.reduce((a,b) => a + b, 0) / arr.length;
+    }
+
+    while (true) {
+	var black = []; var white = [];
+	matrix.map(row => row.map(val => {
+	    if (val < treshold) black.push(val);
+	    if (val >= treshold) white.push(val);
+	}));
+
+	var avg_black = getArrayAverage(black);
+	var avg_white = getArrayAverage(white);
+	var new_treshold = getArrayAverage([avg_black,avg_white]);
+	var diff = Math.round(Math.abs(new_treshold - treshold));
+
+	const margin = 128;
+	if (diff < margin) break;
+	treshold = new_treshold;
+    }
+    */
+
+    if (treshold < 128) {
+	return matrix.map(row => row.map(col => col < treshold ? 255 : 0));
+    }
+
+    return matrix.map(row => row.map(col => col < treshold ? 0 : 255));
 }
