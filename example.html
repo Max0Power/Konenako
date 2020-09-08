@@ -6,7 +6,6 @@
   <script>
     var canvas = document.createElement("CANVAS");
     var context = canvas.getContext("2d");
-    document.body.appendChild(canvas);
 
     setContext(context); // measure width and height
 
@@ -24,6 +23,7 @@
     
     // fit to canvas starting from topleft corner
     context.fillText("H",actualLeft,actualTop);
+    document.body.appendChild(canvas);
 
     function setContext(context) {
 	// canvas context settings

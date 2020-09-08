@@ -96,3 +96,74 @@ function convertGrayscaleToBlackAndWhite(matrix) {
 
     return matrix.map(row => row.map(col => col < treshold ? 0 : 255));
 }
+
+/**
+ * Muuntaa grayscale-kuvan mustavalko-kuvaksi
+ * Balanced Histogram Thresholding (BHT)
+ * 
+ * param arr {number[][]} grayscale-matriisi
+ * return {number[][]} mustavalko-matriisi
+ */
+function convertGrayscaleToBlackAndWhiteBHT(matrix) {
+    var histogram = makeHistogram(matrix);
+    
+    function makeHistogram(matrix) {
+	var histogram = new Array(256).fill(0);
+	matrix.map(row => row.map(col => {
+	    histogram[col] += 1;
+	}));
+	return histogram;
+    }
+    
+    var left = 0;
+    var right = histogram.length - 1 // 255
+    var center = mean(left, right); // 127
+
+    function mean(left, right) {
+	return Math.floor((left + right) / 2);
+    }
+
+    // center is included only to left weight
+    var left_weight = get_weight(left, center);
+    var right_weight = get_weight(center + 1, right);
+
+    function get_weight(left, right) {
+	var arr = range(right - left + 1, left);
+	arr = arr.map(key => histogram[key]);
+	return arr.reduce((a,b) => a + b, 0);
+    }
+
+    function range(size, start) {
+	return [...new Array(size).keys()].map(i => start + i);
+    }
+
+    while (left <= right) {
+	if (right_weight > left_weight) {
+	    // right side is heavier
+	    right_weight -= histogram[right--];
+	    if (mean(left, right) < center) {
+		// center was included to left weight
+		right_weight += histogram[center];
+		left_weight -= histogram[center--];
+	    }
+	} else if (left_weight >= right_weight) {
+	    // left side is heavier
+	    left_weight -= histogram[left++];
+	    if (mean(left, right) >= center) {
+		// center was already in left weight
+		left_weight += histogram[++center];
+		right_weight -= histogram[center];
+	    }
+	}
+    }
+
+    if (center < 128) {
+	return matrix.map(row => row.map(col => {
+	    return col <= center ? 255 : 0;
+	}));
+    }
+
+    return matrix.map(row => row.map(col => {
+	return col <= center ? 0 : 255;
+    }));
+}
