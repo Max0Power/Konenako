@@ -35,7 +35,27 @@ function analyzeUserInput() {
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {
 	    var g_m = readImageToGrayscaleMatrix(img);
-	    var bw_m = convertGrayscaleToBlackAndWhite(g_m);
+
+	    // valitaan käytettävä thresholding method
+	    var select = document.getElementById("Threshold")
+	    var option = select.options[select.selectedIndex].text;
+	    var threshold = undefined;
+	    switch (option) {
+	    case "Iterative Selection":
+		threshold = iterativeSelectionThreshold(g_m);
+		break;
+	    case "BHT":
+		threshold = balancedHistogramThreshold(g_m);
+		break;
+	    case "Otsu's Threshold":
+		threshold = otsuThreshold(g_m);
+		break;
+	    default:
+		console.log("operation not yet supported");
+		break;
+	    }
+	    
+	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
 		var characterGroups = groupCharacters(findCharacters(bw_m));

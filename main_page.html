@@ -13,15 +13,26 @@
 		<script src="Scripts/character_group_detection.js"></script>
 		<script src="Scripts/pixel_filttering.js"></script>
 		<script src="Scripts/main.js"></script>
+		<script src="Scripts/kaavat.js"></script>
 		<title>Image To Text Generator</title>
 	</head>
 	
 	<body>
 		<h1>IMAGE TO TEXT GENERATOR</h1>
 		<div id="FileDiv">
-			<input type="file" id="FileInput" multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()><label><input type="checkbox" id="ToggleImage" onclick=toggleImage()></label><br>
-			<canvas id="Grayscale"></canvas><br>	
-			<textarea id="TextOutput"></textarea>
+		  <input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
+		  <label for="toggleimage">Show image: </label>
+		  <input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage()></input>
+		  <label for="threshold">Thresholding method: </label>
+		  <select id="Threshold" name="threshold">
+		    <option value="0">Iterative Selection</option>
+		    <option value="1">BHT</option>
+		    <option value="2" selected="selected">Otsu's Threshold</option>
+		  </select>
+		  <br>
+		  <canvas id="Grayscale"></canvas>
+		  <br>	
+		  <textarea id="TextOutput"></textarea>
 		</div>
 	</body>
 </html> 
