@@ -32,8 +32,8 @@ function readImageToGrayscaleMatrix(img) {
 	for (var x = 0; x < img.naturalWidth; x++) {
 		var tmpArray = new Array(img.naturalHeight);
 		for (var y = 0; y < img.naturalHeight; y++) {
-			tmpArray[y] = (imgData[imgDataPixelIndex] + imgData[imgDataPixelIndex+1] + imgData[imgDataPixelIndex+2]) / 3.0;
-		    imgDataPixelIndex += 4;
+			var pixelIndex = y * (img.naturalWidth * 4) + (x * 4);
+			tmpArray[y] = (imgData[pixelIndex] + imgData[pixelIndex+1] + imgData[pixelIndex+2]) / 3.0;
 		}
 		matrix[x] = tmpArray;
 	}

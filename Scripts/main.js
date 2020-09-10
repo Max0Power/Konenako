@@ -58,7 +58,8 @@ function analyzeUserInput() {
 	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
-		var characterGroups = groupCharacters(findCharacters(bw_m));
+		var characters = findCharacters(bw_m, 1);
+		var characterGroups = groupCharacters(characters);
 		
 		// Outputin kirjoittaminen tekstiksi:
 		var txt = "";
@@ -70,12 +71,12 @@ function analyzeUserInput() {
 		
 		document.getElementById("TextOutput").value = "First Pixel Color Is: " + bw_m[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
 		
-		drawPixelArray(bw_m);
+		drawPixelArray(bw_m, characters);
 	}
 }
 
 
-function drawPixelArray(matrix) {
+function drawPixelArray(matrix, characters) {
 	var canvas = document.getElementById("Grayscale");
 	
 	canvas.width = matrix.length;
@@ -85,21 +86,25 @@ function drawPixelArray(matrix) {
 	
 	var imgData = ctx.createImageData(matrix.length, matrix[0].length);
 	var data = imgData.data;
-	var imageDataIndex = 0;
+	
 	for (var x = 0; x < matrix.length; x++) {
 		for (var y = 0; y < matrix[0].length; y++) {
-			data[imageDataIndex] = matrix[x][y];
-			data[imageDataIndex + 1] = matrix[x][y];
-			data[imageDataIndex + 2] = matrix[x][y];
-		        data[imageDataIndex + 3] = 255;
-			imageDataIndex += 4;
+			var pixelIndex = y * (matrix.length * 4) + (x * 4);
+			data[pixelIndex] = matrix[x][y];
+			data[pixelIndex + 1] = matrix[x][y];
+			data[pixelIndex + 2] = matrix[x][y];
+		    data[pixelIndex + 3] = 255;
 		}
 	}
 	
 	ctx.putImageData(imgData, 0, 0);
 	
-	
-	
+	ctx.strokeStyle = "#FF0000";
+	ctx.lineWidth = 1;
+	for (var i = 0; i < characters.length; i++) {
+		ctx.strokeRect(characters[i].topLeft[0] - 1, characters[i].topLeft[1] - 1,
+		characters[i].pixelWidth() + 3, characters[i].pixelHeight() + 3);
+	}
 }
 
 function toggleImage() {
