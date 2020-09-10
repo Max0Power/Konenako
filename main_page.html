@@ -25,9 +25,10 @@
 		  <input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage()></input>
 		  <label for="threshold">Thresholding method: </label>
 		  <select id="Threshold" name="threshold">
-		    <option value="0">Iterative Selection</option>
-		    <option value="1">BHT</option>
-		    <option value="2" selected="selected">Otsu's Threshold</option>
+		    <option value="0" selected="selected">Default</option>
+		    <option value="1">Iterative Selection</option>
+		    <option value="2">BHT</option>
+		    <option value="3">Otsu's Threshold</option>
 		  </select>
 		  <br>
 		  <canvas id="Grayscale"></canvas>

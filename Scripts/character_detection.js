@@ -5,6 +5,135 @@
 
 "use strict";
 
+function makeCharacter(text, font) {
+    var canvas = document.createElement("CANVAS");
+    var context = canvas.getContext("2d");
+
+    // measure width and height
+    setContext(context, font);
+
+    function setContext(context, font) {
+	// canvas context settings
+	context.font = font;
+	context.fillStyle = "black";
+	context.textBaseline = "top";
+    }
+
+    // measure text width and height based on context
+    let metrics = context.measureText(text);
+    let actualLeft = metrics.actualBoundingBoxLeft;
+    let actualRight = metrics.actualBoundingBoxRight;
+    let actualTop = metrics.actualBoundingBoxAscent;
+    let actualBottom = metrics.actualBoundingBoxDescent;
+
+    // setting width or height resets canvas context
+    context.canvas.width = actualLeft + actualRight;
+    context.canvas.height = actualTop + actualBottom;
+
+    // canvas context was reset
+    setContext(context, font);
+
+    // fit to canvas starting from topleft corner
+    context.fillText(text, actualLeft, actualTop);
+
+    var matrix = makeCanvasMatrix(context);
+    
+    function makeCanvasMatrix(context) {
+	var width = context.canvas.width;
+	var height = context.canvas.height;
+	
+	var imgd = context.getImageData(0, 0, width, height);
+	var data = new Uint32Array(imgd.data.buffer);
+	
+	var matrix = new Array(width);
+	for (var x = 0; x < width; x++) {
+	    matrix[x] = new Array(height);
+	    for (var y = 0; y < height; y++) {
+		var pixel = data[(y*width)+x];
+
+		var r = (0xff000000 & pixel) >>> 24;
+		var b = (0x00ff0000 & pixel) >>> 16;
+		var g = (0x0000ff00 & pixel) >>> 8;
+
+		matrix[x][y] = Math.floor((r+b+g)/3.0);
+	    }
+	}
+	
+	return matrix;
+    }
+    
+    return matrix;
+}
+
+function findCharactersRecursive(t, reach) {
+    const width = t.length;
+    const height = t[0].length;
+
+    var characters = new Array();
+
+    // taulukko kertoo onko indeksissä käyty aiemmin
+    var ones = luoMatriisi(width,height,true); // kaavat.js
+    for (var i = 0; i < width; i++) {
+	for (var j = 0; j < height; j++) {
+	    if (tarkista(t,ones,i,j)) {
+		// selvitetään interpoloitavat sijainnit
+		var empty = annaTyhjat(t,ones,i,j,reach);
+		characters.push(new Character(...empty));
+	    }
+	}
+    }
+
+    return characters;
+}
+
+function tarkista(t,ones,i,j) {
+    if (i < 0 || j < 0) {
+	return false;
+    }
+    if (i >= t.length || j >= t[i].length) {
+	return false;
+    }
+    if (t[i][j] > 0) {
+	return false;
+    }
+
+    return ones[i][j];
+}
+
+function annaTyhjat(t,ones,is,js,reach) {
+    var empty = [[is,js]]; // found empty value
+    ones[is][js] = false; // mark as visited
+
+    var minX = Number.MAX_SAFE_INTEGER;
+    var minY = Number.MAX_SAFE_INTEGER;
+    
+    var maxX = Number.MIN_SAFE_INTEGER;
+    var maxY = Number.MIN_SAFE_INTEGER;
+
+    while (empty.length > 0) {
+	var [i,j] = empty.shift();
+
+	// add to queue if not visited
+	for (var x = -reach; x <= reach; x++) {
+	    for (var y = -reach; y <= reach; y++) {
+		var [a,b] = [i+x,j+y];
+		if (tarkista(t,ones,a,b)) {
+		    empty.push([a,b]); // found empty value
+		    ones[a][b] = false; // mark as visited
+		}
+	    }
+	}
+
+	minX = i < minX ? i : minX;
+	minY = j < minY ? j : minY;
+	
+	maxX = i > maxX ? i : maxX;
+	maxY = j > maxY ? j : maxY;
+    }
+
+    // piirtää oikein kun kääntää y-arvot
+    return [[minX,minY],[maxX,maxY]];
+}
 
 /**
  * Etsii Pikselitaulukosta kaikki merkit, muodostaa merkki -oliot taulukkoon ja palauttaa sen.

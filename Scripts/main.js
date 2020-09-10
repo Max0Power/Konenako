@@ -35,12 +35,16 @@ function analyzeUserInput() {
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {
 	    var g_m = readImageToGrayscaleMatrix(img);
+	    //var g_m = makeCharacter("H", "30px Arial");
+	    //g_m = scaleMatrix(g_m,128,128);
 
 	    // valitaan käytettävä thresholding method
 	    var select = document.getElementById("Threshold")
 	    var option = select.options[select.selectedIndex].text;
 	    var threshold = undefined;
 	    switch (option) {
+	    case "Default":
+		threshold = 128;
 	    case "Iterative Selection":
 		threshold = iterativeSelectionThreshold(g_m);
 		break;
@@ -58,7 +62,8 @@ function analyzeUserInput() {
 	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
-		var characters = findCharacters(bw_m, 1);
+	        var characters = findCharacters(bw_m, 7);
+	        //var characters = findCharactersRecursive(bw_m, 1);
 		var characterGroups = groupCharacters(characters);
 		
 		// Outputin kirjoittaminen tekstiksi:
