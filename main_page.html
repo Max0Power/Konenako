@@ -20,6 +20,7 @@
 	<body>
 		<h1>IMAGE TO TEXT GENERATOR</h1>
 		<div id="FileDiv">
+		  <h2>Input:</h2>
 		  <input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
 		  <label for="toggleimage">Show image: </label>
 		  <input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage()></input>
@@ -32,7 +33,8 @@
 		  </select>
 		  <br>
 		  <canvas id="Grayscale"></canvas>
-		  <br>	
+		  <br>
+		  <h2>Output:</h2>
 		  <textarea id="TextOutput"></textarea>
 		</div>
 	</body>

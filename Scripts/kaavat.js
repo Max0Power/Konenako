@@ -102,33 +102,47 @@ function luoMatriisi(rivit,sarakkeet,oletus) {
     return t;
 }
 
+/**
+ * Skaalaa matriisin leveyden ja korkeuden mukaan
+ * TODO: kokeile piirtää suoraan kanvakselle
+ * 
+ * param matrix {number[][]} skaalattava matriisi
+ * param width {number} skaalatun matriisin leveys
+ * param height {number} skaalatun matriisin korkeus
+ * return {number[][]} skaalattu matriisi
+ */
 function scaleMatrix(matrix, width, height) {
-    var xs = matrix.length;
-    var ys = matrix[0].length;
+    // scales matrix's width and height
+    var scaleX = width / matrix.length;
+    var scaleY = height / matrix[0].length;
 
-    var scaleX = width / xs;
-    var scaleY = height / ys;
-
-    var mat = luoMatriisi(width, height, 0);
+    // create a new matrix from parameters
+    var scaleM = luoMatriisi(width, height, 0);
 
     for (var x = 0; x < matrix.length; x++) {
-	var prevX = Math.round(scaleX*x);
-	var diffX = Math.round(scaleX*(x+1)) - prevX;
+	
+	// distances between transformed widths
+	var thisX = Math.round(scaleX*x);
+	var nextX = Math.round(scaleX*(x+1));
+	
 	for (var y = 0; y < matrix[x].length; y++) {
-	    var prevY = Math.round(scaleY*y);
-	    var diffY = Math.round(scaleY*(y+1) - prevY);
+	    
+	    // distances between transformed heights
+	    var thisY = Math.round(scaleY*y);
+	    var nextY = Math.round(scaleY*(y+1));
 
-	    var pixel = matrix[x][y];
-	    for (var xx = 0; xx < diffX; xx++) {
-		for (var yy = 0; yy < diffY; yy++) {
-		    mat[prevX + xx][prevY + yy] = pixel;
-		}
-	    }
+	    // coordinates between transformed distances
+	    var xs = range(Math.abs(thisX-nextX),thisX);
+	    var ys = range(Math.abs(thisY-nextY),thisY);
+	    
+	    xs.forEach(xx => {
+		ys.forEach(yy => {
+		    // set coordinate values
+		    scaleM[xx][yy] = matrix[x][y];
+		});
+	    });
 	}
     }
 
-    // TODO: skaalaus alaspäin
-    // TODO: kokeile piirtää suuremmalle kanvakselle
-
-    return mat;
+    return scaleM;
 }

@@ -5,6 +5,10 @@
 
 "use strict";
 
+/**
+ * Huom! Pienellä fontilla kirjaimen rajoissa virhettä
+ * Huom! Sopiva fonttikoko "256px Arial"
+ */
 function makeCharacter(text, font) {
     var canvas = document.createElement("CANVAS");
     var context = canvas.getContext("2d");
@@ -55,7 +59,7 @@ function makeCharacter(text, font) {
 		var b = (0x00ff0000 & pixel) >>> 16;
 		var g = (0x0000ff00 & pixel) >>> 8;
 
-		matrix[x][y] = Math.floor((r+b+g)/3.0);
+		matrix[x][y] = Math.round((r+b+g)/3.0);
 	    }
 	}
 	

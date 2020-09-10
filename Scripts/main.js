@@ -35,7 +35,7 @@ function analyzeUserInput() {
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {
 	    var g_m = readImageToGrayscaleMatrix(img);
-	    //var g_m = makeCharacter("H", "30px Arial");
+	    //var g_m = makeCharacter("H", "256px Arial");
 	    //g_m = scaleMatrix(g_m,128,128);
 
 	    // valitaan käytettävä thresholding method
