@@ -6,6 +6,7 @@
 <html>
 	<head>
 		<meta charset="utf-8"/>
+		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 		<!-- Styles: Styles/name.css -->
 		<link rel="stylesheet" href="Styles/styles.css" />
 		<!-- Scripts: Scritps/name.js -->
@@ -21,6 +22,8 @@
 		<h1>IMAGE TO TEXT GENERATOR</h1>
 		<div id="FileDiv">
 		  <h2>Input:</h2>
+		  <hr>
+		  <!-- Input Area -->
 		  <input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
 		  <label for="toggleimage">Show image: </label>
 		  <input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage()></input>
@@ -32,9 +35,16 @@
 		    <option value="3">Otsu's Threshold</option>
 		  </select>
 		  <br>
+		  <!-- Progress Bar -->
+		  <div>
+		    <span id="ProgressBar"></span>
+		  </div>
+		  <!-- Image -->
 		  <canvas id="Grayscale"></canvas>
 		  <br>
+		  <hr>
 		  <h2>Output:</h2>
+		  <!-- Output Area -->
 		  <textarea id="TextOutput"></textarea>
 		</div>
 	</body>

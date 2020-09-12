@@ -3,7 +3,7 @@
  * @version 09.09.2020
  */
 
-"use strict"
+"use strict";
 
 /**
  * @example
@@ -79,24 +79,18 @@ function max(array) {
  * @param oletus      oletusarvo
  * @return            täytetty matriisi
  * @example
- *   luoMatriisi(0,0,0) === []
- *   luoMatriisi(2,0,0) === [[],[]]
- *   luoMatriisi(0,2,0) === []
- *   luoMatriisi(2,2,0) === [[0,0],[0,0]]
- *   luoMatriisi(2,2,2) === [[2,2],[2,2]]
+ *   makeMatrix(0,0,0) === []
+ *   makeMatrix(2,0,0) === [[],[]]
+ *   makeMatrix(0,2,0) === []
+ *   makeMatrix(2,2,0) === [[0,0],[0,0]]
+ *   makeMatrix(2,2,2) === [[2,2],[2,2]]
  */
-function luoMatriisi(rivit,sarakkeet,oletus) {
-    /*
-    // virhe: sarakkeilla sama viite
-    var t = new Array(rivit).fill(new Array(sarakkeet));
-    return t.map(x => x.fill(oletus));
-    */
-    
+function makeMatrix(rows,cols,value) {
     var t = [];
-    for (var i = 0; i < rivit; i++) {
+    for (var i = 0; i < rows; i++) {
 	t[i] = [];
-	for (var j = 0; j < sarakkeet; j++) {
-	    t[i][j] = oletus;
+	for (var j = 0; j < cols; j++) {
+	    t[i][j] = value;
 	}
     }
     return t;
@@ -117,7 +111,7 @@ function scaleMatrix(matrix, width, height) {
     var scaleY = height / matrix[0].length;
 
     // create a new matrix from parameters
-    var scaleM = luoMatriisi(width, height, 0);
+    var scaleM = makeMatrix(width, height, 0);
 
     for (var x = 0; x < matrix.length; x++) {
 	

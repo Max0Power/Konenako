@@ -62,8 +62,7 @@ function analyzeUserInput() {
 	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
-	        var characters = findCharacters(bw_m, 7);
-	        //var characters = findCharactersRecursive(bw_m, 1);
+		var characters = findCharacters(bw_m, 7);
 		var characterGroups = groupCharacters(characters);
 		
 		// Outputin kirjoittaminen tekstiksi:
@@ -120,4 +119,25 @@ function toggleImage() {
 	else {
 		document.getElementById("Grayscale").style.display = "none";
 	}
+}
+
+/**
+ * Updates the progress bar's text content
+ * 
+ * param percent {number} perentage completed
+ * param seconds {number} timer start seconds
+ */
+function updateProgressBar(percent, seconds) {
+    // calculates estimated runtime from parameters
+    const elapsed = Math.round((Date.now()-seconds)/1000);
+    const estimate = Math.round((elapsed/percent)*(100-percent));
+
+    // formats the variables to a readable texts
+    const str_percent = `${percent}% Complete`;
+    const str_seconds = `Time elapsed ${elapsed} second(s)`;
+    const str_estimate =`ETA ${estimate} second(s)`
+
+    // changes the text content of a progress bar
+    const text = `${str_percent} ${str_seconds} ${str_estimate}`;
+    document.getElementById("ProgressBar").textContent = text;
 }

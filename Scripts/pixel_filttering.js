@@ -76,7 +76,7 @@ function iterativeSelectionThreshold(matrix) {
 
     while (true) {
 	var background = []; var foreground = [];
-	matrix.map(row => row.map(val => {
+	matrix.forEach(row => row.forEach(val => {
 	    if (val <= treshold) background.push(val);
 	    if (val > treshold) foreground.push(val);
 	}));
@@ -101,7 +101,7 @@ function iterativeSelectionThreshold(matrix) {
  */
 function makeHistogram(matrix) {
     var histogram = new Array(256).fill(0);
-    matrix.map(row => row.map(col => {
+    matrix.forEach(row => row.forEach(col => {
 	histogram[Math.floor(col)] += 1;
     }));
     return histogram;
