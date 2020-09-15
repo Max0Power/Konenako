@@ -119,7 +119,7 @@ function detectAreas(bw_m, look_out_distance) {
 			}
 		}
 		
-		// Koko kuva on kasitelty: TODO --> Jatka tanne ohjelman etenemista:
+		// Koko kuva on kasitelty: Jatketaan detectCharacters funktioon (character_detection.js)
 		if (processed_count >= processed.length * processed[0].length && open_set.length < 1) {
 			clearInterval(loop);
 			console.log("Areas detected: " + areas.length);

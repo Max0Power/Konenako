@@ -80,6 +80,14 @@ function detectCharacters(bw_m, areas) {
 	console.log("Detect Characters started: TODO");
 	var characters = [];
 	
+	
+	var loop = setInterval(process, 10);
+	
+	function process() {
+		
+		clearInterval(loop);
+	}
+	
 	detectCharacterGroups(characters)
 }
 
