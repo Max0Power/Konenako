@@ -8,29 +8,29 @@
 /**
  * Vertaa alueen ja kirjaimen osuvuutta
  * 
- * param matrix {number[][]} verrattava alue
+ * param matrix {number[][]} koko kuvan matriisi
+ * param area {Area} verrattavan kirjaimen rajat
  * param sample {number[][]} verrattava kirjain
  * return {number} alueen ja kirjaimen vastaavuus
  */
-function compareCharacter(matrix, sample) {
-    const width = matrix.length;
-    const height = matrix[0].length;
-    
-    if (width !== sample.length ||
-	height !== sample[0].length) {
-	throw new Error("matrix dimensions differ");
-    }
+function compareCharacter(matrix, areaObj, sample) {
+    const width = areaObj.pixelWidth();
+    const height = areaObj.pixelHeight();
     
     var sad = 0; // sum of absolute differences
     const sadMax = width*height*255;
+
+    var xs = 0; var ys = 0;
     
-    for (var x = 0; x < width; x++) {
-	for (var y = 0; y < height; y++) {
-	    sad += Math.abs(matrix[x][y] - sample[x][y]);
+    for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) {
+	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) {
+	    sad += Math.abs(matrix[x][y] - sample[xs][ys]);
+	    ys++;
 	}
+	xs++;
     }
 
-    return 100 - (sad/sadMax)*100; // relative to maximum sad
+    return 1 - (sad/sadMax); // relative to maximum sad
 }
 
 /**

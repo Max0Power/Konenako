@@ -191,7 +191,7 @@ class Area {
 	 * @return {Int} - Palauttaa alueen leveyden
 	 */
 	pixelWidth() {
-		return Math.abs(this.bottomRight[0] - this.topLeft[0]);
+		return Math.abs(this.bottomRight[0] - this.topLeft[0] + 1);
 	}
 	
 	
@@ -200,6 +200,6 @@ class Area {
 	 * @return {Int} - Palauttaa alueen korkeuden
 	 */
 	pixelHeight() {
-		return Math.abs(this.bottomRight[1] - this.topLeft[1]);
+		return Math.abs(this.bottomRight[1] - this.topLeft[1] + 1);
 	}
 }
