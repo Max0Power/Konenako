@@ -105,18 +105,67 @@ function makeCharacter(text, font) {
  * @param {Area[]} areas - taulukko Area -olioita, jotka loydettiin detectAreas -funktiolla (area_detection.js)
  */
 function detectCharacters(bw_m, areas) {
-	console.log("Detect Characters started: TODO");
+	
+	console.log("Detect Characters started: IN DEVELOPMENT");
+	
+	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
 	
-	
+	// Luodaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
 	var loop = setInterval(process, 10);
 	
-	function process() {
-		
-		clearInterval(loop);
+	// Luodaan vaste data:
+	var comparison_characters = [];
+	var comparison_data = [];
+	for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
+			comparison_characters.push(String.fromCharCode(ascii_index));
+			comparison_data.push(makeCharacter(comparison_characters[comparison_characters.length - 1], "256px Arial"));		
 	}
 	
-	detectCharacterGroups(characters)
+	
+	/**
+	 * Prosessi "looppi", joka tekee jokaiselle loydetylle alueelle tunnistuksen, joka maarittelee loytyiko merkki
+	 */
+	function process() {
+		
+		const MAX_AREA_PROCESS_COUNT = 10;
+		var areas_processed_count = 0;
+		
+		while (areas_processed_count < MAX_AREA_PROCESS_COUNT && areas.length > 0) {
+			
+			// Lasketaan todennakoisyydet suhteessa vastedatan merkkeihin:
+			var probablity_array = [];
+			for (var i = 0; i < comparison_data.length; i++) {
+				var probablity = 0;
+				
+				probablity_array.push(probablity);
+			}
+			
+			// Etsitaan paras laskettu todennakoisyys:
+			var best_probablity_index = 0;
+			for (var i = 1; i < probablity_array.length; i++) {
+				if(probablity_array[i] > probablity_array[best_probablity_index]) {
+					best_probablity_index = i;
+				}
+			}
+			
+			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
+			if (probablity_array[best_probablity_index] > 0.5) {
+				characters.push(new Character(comparison_characters[best_probablity_index], areas[0]));
+			}
+			
+			// Poistetaan kasitelty Area -olio areas taulukosta:
+			areas.splice(0, 1);
+			
+			areas_processed_count++;
+		}	
+		// Kaikki alueet kasitelty: jatketaan suoritusta detectCharacterGroups funktioon (character_group_detection.js)
+		if (areas.length < 1) {
+			clearInterval(loop);
+			console.log("Characters found: " + characters.length);
+			detectCharacterGroups(characters)
+		}
+	}
 }
 
 
@@ -130,10 +179,9 @@ class Character {
 	 * @param {[x, y]} topLeft - Taulukko osoittamaan alueen vasen ylanurkka
 	 * @param {[x, y]} bottomRight - Taulukko osoittamaan alueen oikea alanurkka
 	 */
-	constructor(topLeft, bottomRight) {
-		this.topLeft = topLeft;
-		this.bottomRight = bottomRight;
-		this.val = "";
+	constructor(value, bounds) {
+		this.value = value;
+		this.bounds = bounds;
 	}
 	
 	determineValue(bw_m) {
