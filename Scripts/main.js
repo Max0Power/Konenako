@@ -62,7 +62,9 @@ function analyzeUserInput() {
 	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
 		
 		// Merkkien etsiminen ja ryhmayttaminen:
-		var characters = findCharacters(bw_m, 7);
+		var characters = findCharacters(bw_m, 2);
+		
+		/*
 		var characterGroups = groupCharacters(characters);
 		
 		// Outputin kirjoittaminen tekstiksi:
@@ -74,13 +76,12 @@ function analyzeUserInput() {
 		}
 		
 		document.getElementById("TextOutput").value = "First Pixel Color Is: " + bw_m[0][0].toString(); // <---- TODO: Poista, Asetettu vain place holderiksi ennen kuin toimintoja ruvetaan tekemään!
-		
-		drawPixelArray(bw_m, characters);
+		*/
 	}
 }
 
 
-function drawPixelArray(matrix, characters) {
+function drawPixelArray(matrix) {
 	var canvas = document.getElementById("Grayscale");
 	
 	canvas.width = matrix.length;
@@ -102,14 +103,19 @@ function drawPixelArray(matrix, characters) {
 	}
 	
 	ctx.putImageData(imgData, 0, 0);
-	
+}
+
+
+function drawArea(topLeft, bottomRight) {
+	var canvas = document.getElementById("Grayscale");
+	var ctx = canvas.getContext("2d");
 	ctx.strokeStyle = "#FF0000";
 	ctx.lineWidth = 1;
-	for (var i = 0; i < characters.length; i++) {
-		ctx.strokeRect(characters[i].topLeft[0] - 1, characters[i].topLeft[1] - 1,
-		characters[i].pixelWidth() + 3, characters[i].pixelHeight() + 3);
-	}
+	ctx.strokeRect(topLeft[0] - 1, topLeft[1] - 1,
+	Math.abs(bottomRight[0] - topLeft[0]) + 3, Math.abs(bottomRight[1] - topLeft[1]) + 3);
+	
 }
+
 
 function toggleImage() {
 	var toggle = document.getElementById("ToggleImage");
