@@ -6,6 +6,34 @@
 "use strict";
 
 /**
+ * Vertaa alueen ja kirjaimen osuvuutta
+ * 
+ * param matrix {number[][]} verrattava alue
+ * param sample {number[][]} verrattava kirjain
+ * return {number} alueen ja kirjaimen vastaavuus
+ */
+function compareCharacter(matrix, sample) {
+    const width = matrix.length;
+    const height = matrix[0].length;
+    
+    if (width !== sample.length ||
+	height !== sample[0].length) {
+	throw new Error("matrix dimensions differ");
+    }
+    
+    var sad = 0; // sum of absolute differences
+    const sadMax = width*height*255;
+    
+    for (var x = 0; x < width; x++) {
+	for (var y = 0; y < height; y++) {
+	    sad += Math.abs(matrix[x][y] - sample[x][y]);
+	}
+    }
+
+    return 100 - (sad/sadMax)*100; // relative to maximum sad
+}
+
+/**
  * Huom! Pienellä fontilla kirjaimen rajoissa virhettä
  * Huom! Sopiva fonttikoko "256px Arial"
  */
