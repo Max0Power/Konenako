@@ -89,7 +89,7 @@ function detectAreas(bw_m, look_out_distance) {
 				// Jos open_set on tyhjentynyt --> alue on loytynyt ja luodaan Area -olio + piirretaan kanvasille loytynyt alue
 				if (open_set.length <= 0) {
 					areas.push(new Area(area_top_left, area_bottom_right));
-					drawArea(area_top_left, area_bottom_right);
+				    drawArea(area_top_left, area_bottom_right, "#FF0000");
 				}
 			}
 			// Jos open setissa ei ole pikseleita --> etsitaan seuraava musta pikseli

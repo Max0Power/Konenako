@@ -16,13 +16,16 @@
 function compareCharacter(matrix, areaObj, sample) {
     const width = areaObj.pixelWidth();
     const height = areaObj.pixelHeight();
+
+    // skaalataan mallikuva alueen kokoiseksi
+    sample = scaleMatrix(sample, width, height);
     
     var sad = 0; // sum of absolute differences
     const sadMax = width*height*255;
 
-    var xs = 0; var ys = 0;
-    
+    var xs = 0; 
     for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) {
+	var ys = 0;
 	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) {
 	    sad += Math.abs(matrix[x][y] - sample[xs][ys]);
 	    ys++;
@@ -30,6 +33,7 @@ function compareCharacter(matrix, areaObj, sample) {
 	xs++;
     }
 
+    //console.log(1 - (sad/sadMax));
     return 1 - (sad/sadMax); // relative to maximum sad
 }
 
@@ -118,8 +122,10 @@ function detectCharacters(bw_m, areas) {
 	var comparison_characters = [];
 	var comparison_data = [];
 	for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
-			comparison_characters.push(String.fromCharCode(ascii_index));
-			comparison_data.push(makeCharacter(comparison_characters[comparison_characters.length - 1], "256px Arial"));		
+	    var c = String.fromCharCode(ascii_index);
+	    comparison_characters.push(c);
+	    var compare_m = makeCharacter(c, "256px Arial");
+	    comparison_data.push(compare_m);
 	}
 	
 	
@@ -147,10 +153,12 @@ function detectCharacters(bw_m, areas) {
 					best_probablity_index = i;
 				}
 			}
-			
+		    
 			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
-			if (probablity_array[best_probablity_index] > 0.5) {
-				characters.push(new Character(comparison_characters[best_probablity_index], areas[0]));
+			if (probablity_array[best_probablity_index] > 0.40) {
+			    characters.push(new Character(comparison_characters[best_probablity_index], areas[0]));
+			    drawArea(areas[0].topLeft, areas[0].bottomRight, "green");
+			    console.log(comparison_characters[best_probablity_index]);
 			}
 			
 			// Poistetaan kasitelty Area -olio areas taulukosta:

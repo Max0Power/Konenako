@@ -96,7 +96,6 @@ function makeMatrix(rows,cols,value) {
     return t;
 }
 
-
 /**
  * Skaalaa matriisin leveyden ja korkeuden mukaan
  * TODO: kokeile piirtää suoraan kanvakselle
@@ -107,35 +106,25 @@ function makeMatrix(rows,cols,value) {
  * return {number[][]} skaalattu matriisi
  */
 function scaleMatrix(matrix, width, height) {
-    // scales matrix's width and height
-    var scaleX = width / matrix.length;
-    var scaleY = height / matrix[0].length;
-
-    // create a new matrix from parameters
-    var scaleM = makeMatrix(width, height, 0);
-
-    for (var x = 0; x < matrix.length; x++) {
+    var scaleM = new Array(width);
+    for (var x = 0; x < width; x++) {
+		
+	var xs = 0;
+	if (width > 1) {
+	    xs = parseInt(x/(width-1)*(matrix.length-1), 10);
+	}
 	
-	// distances between transformed widths
-	var thisX = Math.round(scaleX*x);
-	var nextX = Math.round(scaleX*(x+1));
-	
-	for (var y = 0; y < matrix[x].length; y++) {
+	//var xs = parseInt((matrix.length/width)*x, 10);
+	scaleM[x] = new Array(height);
+	for (var y = 0; y < height; y++) {
 	    
-	    // distances between transformed heights
-	    var thisY = Math.round(scaleY*y);
-	    var nextY = Math.round(scaleY*(y+1));
-
-	    // coordinates between transformed distances
-	    var xs = range(Math.abs(thisX-nextX),thisX);
-	    var ys = range(Math.abs(thisY-nextY),thisY);
+	    var ys = 0;
+	    if (height > 1) {
+		ys = parseInt(y/(height-1)*(matrix[0].length-1), 10);
+	    }
 	    
-	    xs.forEach(xx => {
-			ys.forEach(yy => {
-				// set coordinate values
-				scaleM[xx][yy] = matrix[x][y];
-			});
-	    });
+	    //var ys = parseInt((matrix[0].length/height)*y, 10);
+	    scaleM[x][y] = matrix[xs][ys];
 	}
     }
 

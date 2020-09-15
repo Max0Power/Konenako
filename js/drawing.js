@@ -31,10 +31,10 @@ function drawPixelArray(matrix) {
 }
 
 
-function drawArea(topLeft, bottomRight) {
+function drawArea(topLeft, bottomRight, color) {
 	var canvas = document.getElementById("Drawing");
 	var ctx = canvas.getContext("2d");
-	ctx.strokeStyle = "#FF0000";
+	ctx.strokeStyle = color;
 	ctx.lineWidth = 1;
 	ctx.strokeRect(topLeft[0] - 1, topLeft[1] - 1,
 	Math.abs(bottomRight[0] - topLeft[0]) + 3, Math.abs(bottomRight[1] - topLeft[1]) + 3);
