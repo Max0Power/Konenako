@@ -96,31 +96,31 @@ function makeMatrix(rows,cols,value) {
     return t;
 }
 
+
 /**
  * Skaalaa matriisin leveyden ja korkeuden mukaan
  * TODO: kokeile piirtää suoraan kanvakselle
  * 
- * param matrix {number[][]} koko kuvan matriisi
- * param areaObj {Area} skaalattava matriisin rajat
+ * param matrix {number[][]} skaalattava matriisi
  * param width {number} skaalatun matriisin leveys
  * param height {number} skaalatun matriisin korkeus
  * return {number[][]} skaalattu matriisi
  */
-function scaleMatrix(matrix, areaObj, width, height) {
+function scaleMatrix(matrix, width, height) {
     // scales matrix's width and height
-    var scaleX = width / areaObj.pixelWidth();
-    var scaleY = height / areaObj.pixelHeight();
+    var scaleX = width / matrix.length;
+    var scaleY = height / matrix[0].length;
 
     // create a new matrix from parameters
-    var scaleM = makeMatrix(width, height, 0)
-    
-    for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) {
+    var scaleM = makeMatrix(width, height, 0);
+
+    for (var x = 0; x < matrix.length; x++) {
 	
 	// distances between transformed widths
 	var thisX = Math.round(scaleX*x);
 	var nextX = Math.round(scaleX*(x+1));
 	
-	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) {
+	for (var y = 0; y < matrix[x].length; y++) {
 	    
 	    // distances between transformed heights
 	    var thisY = Math.round(scaleY*y);
