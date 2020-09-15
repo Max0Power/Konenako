@@ -131,10 +131,10 @@ function scaleMatrix(matrix, width, height) {
 	    var ys = range(Math.abs(thisY-nextY),thisY);
 	    
 	    xs.forEach(xx => {
-		ys.forEach(yy => {
-		    // set coordinate values
-		    scaleM[xx][yy] = matrix[x][y];
-		});
+			ys.forEach(yy => {
+				// set coordinate values
+				scaleM[xx][yy] = matrix[x][y];
+			});
 	    });
 	}
     }
