@@ -5,18 +5,14 @@
 
 "use strict";
 
+
 /**
- * Kay lapi loydetyt character -oliot taulukosta ja muodostaa ryhmat
+ * Kay lapi loydetyt character -oliot taulukosta ja muodostaa ryhmat.
+ * Jatkaa suorituksen jalkeen tulostukseen, jossa tulostetaan tunnistetut merkit.
  * @param {Character[]} characters - Taulukko Character -olioita
- * @return {CharacterGroup[]} - Palauttaa taulukon, joka sisaltaa muodostetut CharacterGroup -oliot
  */
-function groupCharacters(characters) {
-	
-	// TODO: Etsi merkkijonot ja luo ChracterGroup oliot!
-	var characterGroups = new Array();
-	
-	// Todo: Sort --> kirjoittajaa varten
-	return characterGroups;
+function detectCharacterGroups(characters) {
+	console.log("Detect Character Groups Started: TODO");
 }
 
 
@@ -38,7 +34,7 @@ class CharacterGroup {
 		this.linebrake = true
 	}
 	
-	toString(pixelArray) {
+	toString() {
 		var txt = "";
 		for (var i = 0; i < this.characters.length; i++) {
 			txt = txt + this.characters[i].val;

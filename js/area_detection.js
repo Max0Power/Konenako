@@ -1,83 +1,20 @@
 /**
  * @author Jussi Parviainen ja Harri Linna
- * @version 03.09.2020
+ * @version 15.09.20207
+ * Vastaa mustien pikseleiden muodostamien alueitten loytamisesta mustavalkokuvasta.
+ * Jatkaa suorituksen jalkeen character_detection.js --> skriptiin, jossa tehdaan merkkien tunnistus loydetyilla alueilla.
  */
-
+ 
 "use strict";
 
 /**
- * Huom! Pienellä fontilla kirjaimen rajoissa virhettä
- * Huom! Sopiva fonttikoko "256px Arial"
- */
-function makeCharacter(text, font) {
-    var canvas = document.createElement("CANVAS");
-    var context = canvas.getContext("2d");
-
-    // measure width and height
-    setContext(context, font);
-
-    function setContext(context, font) {
-	// canvas context settings
-	context.font = font;
-	context.fillStyle = "black";
-	context.textBaseline = "top";
-    }
-
-    // measure text width and height based on context
-    let metrics = context.measureText(text);
-    let actualLeft = metrics.actualBoundingBoxLeft;
-    let actualRight = metrics.actualBoundingBoxRight;
-    let actualTop = metrics.actualBoundingBoxAscent;
-    let actualBottom = metrics.actualBoundingBoxDescent;
-
-    // setting width or height resets canvas context
-    context.canvas.width = actualLeft + actualRight;
-    context.canvas.height = actualTop + actualBottom;
-
-    // canvas context was reset
-    setContext(context, font);
-
-    // fit to canvas starting from topleft corner
-    context.fillText(text, actualLeft, actualTop);
-
-    var matrix = makeCanvasMatrix(context);
-    
-    function makeCanvasMatrix(context) {
-	var width = context.canvas.width;
-	var height = context.canvas.height;
-	
-	var imgd = context.getImageData(0, 0, width, height);
-	var data = new Uint32Array(imgd.data.buffer);
-	
-	var matrix = new Array(width);
-	for (var x = 0; x < width; x++) {
-	    matrix[x] = new Array(height);
-	    for (var y = 0; y < height; y++) {
-		var pixel = data[(y*width)+x];
-
-		var r = (0xff000000 & pixel) >>> 24;
-		var b = (0x00ff0000 & pixel) >>> 16;
-		var g = (0x0000ff00 & pixel) >>> 8;
-
-		matrix[x][y] = Math.round((r+b+g)/3.0);
-	    }
-	}
-	
-	return matrix;
-    }
-    
-    return matrix;
-}
-
-
-/**
- * Etsii Pikselitaulukosta kaikki merkit, muodostaa merkki -oliot taulukkoon ja palauttaa sen.
+ * Etsii Pikselitaulukosta kaikki mustien pikselien alueet, muodostaa Area -oliot taulukkoon --> sen jalkeen jatketaan character_detection.js:aan.
  @param {Int[][]} bw_m - Mustavalko kuvan matriisi
- @return {Character[]} - Palauttaa kaikki loydetyt Character -oliot taulukossa
+ @return {Area[]} - Palauttaa kaikki loydetyt pikseli alueet kuvasta
  */
-function findCharacters(bw_m, look_out_distance) {
+function detectAreas(bw_m, look_out_distance) {
 	
-	// Piirto:
+	// Piirto --> piirretaan mustavalko kuva:
 	drawPixelArray(bw_m);
 	
 	// Aputaulukko helpottamaan naapureiden x ja y koordinaattien laskentaa:
@@ -101,9 +38,10 @@ function findCharacters(bw_m, look_out_distance) {
 	var area_top_left;
 	var area_bottom_right;
 	
-	var characters = [];
+	var areas = [];
 	
 	var loop = setInterval(process, 10);
+	
 	
 	/*
 	 * Prosessi "looppi", joka suorittaa mahdollisten kirjainten etsimisen kuvasta.
@@ -148,9 +86,9 @@ function findCharacters(bw_m, look_out_distance) {
 				// Poistetaan jokaisella while silmukan kierroksella open_setin ensimmainen alkio, jota kaytetaan naapureiden sijainnin laskentaan:
 				open_set.splice(0,1);
 				
-				// Jos open_set on tyhjentynyt --> alue on loytynyt ja luodaan Character -olio + piirretaan kanvasille loytynyt alue
+				// Jos open_set on tyhjentynyt --> alue on loytynyt ja luodaan Area -olio + piirretaan kanvasille loytynyt alue
 				if (open_set.length <= 0) {
-					characters.push(new Character(area_top_left, area_bottom_right));
+					areas.push(new Area(area_top_left, area_bottom_right));
 					drawArea(area_top_left, area_bottom_right);
 				}
 			}
@@ -183,8 +121,9 @@ function findCharacters(bw_m, look_out_distance) {
 		
 		// Koko kuva on kasitelty: TODO --> Jatka tanne ohjelman etenemista:
 		if (processed_count >= processed.length * processed[0].length && open_set.length < 1) {
-			console.log(processed_count + "/" + processed.length * processed[0].length);
 			clearInterval(loop);
+			console.log("Areas detected: " + areas.length);
+			detectCharacters(bw_m, areas);
 		}
 	}
 	
@@ -231,33 +170,36 @@ function findCharacters(bw_m, look_out_distance) {
 
 
 /**
- * Merkki -olio, sisaltaa yksittaisen merkin kattavan alueen PixelArraysta
+ * Luokka alueelle, joka pitaa sisallaan loydetyn mustien pikselien alueen
  */
-class Character {
+class Area {
+	
 	
 	/**
-	 * Muodostaja Merkki -oliolle
-	 * @param {[x, y]} topLeft - Taulukko osoittamaan alueen vasen ylanurkka
-	 * @param {[x, y]} bottomRight - Taulukko osoittamaan alueen oikea alanurkka
+	 * Area -olion muodostaja
+	 * @param {Int[x, y]} topLeft - alueen vasemman ylanurkan x ja y koordinaatti
+	 * @param {Int[x, y]} bottomRight - alueen oikean alanurkan x ja y koordinaatti
 	 */
 	constructor(topLeft, bottomRight) {
 		this.topLeft = topLeft;
 		this.bottomRight = bottomRight;
-		this.val = "";
 	}
 	
-	determineValue(bw_m) {
-		
-		
-	}
 	
+	/*
+	 * Palauttaa alueen leveyden
+	 * @return {Int} - Palauttaa alueen leveyden
+	 */
 	pixelWidth() {
 		return Math.abs(this.bottomRight[0] - this.topLeft[0]);
 	}
 	
 	
+	/*
+	 * Palauttaa alueen korkeuden
+	 * @return {Int} - Palauttaa alueen korkeuden
+	 */
 	pixelHeight() {
 		return Math.abs(this.bottomRight[1] - this.topLeft[1]);
 	}
-	
 }
