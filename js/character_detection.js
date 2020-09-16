@@ -6,44 +6,52 @@
 "use strict";
 
 /**
- * Vertaa alueen ja kirjaimen osuvuutta
+ * Vertaa alueen ja mallin pikseleiden osuvuutta
  * 
  * param matrix {number[][]} koko kuvan matriisi
- * param area {Area} verrattavan kirjaimen rajat
+ * param areaObj {Area} verrattavan kirjaimen rajat
  * param sample {number[][]} verrattava kirjain
  * return {number} alueen ja kirjaimen vastaavuus
  */
 function compareCharacter(matrix, areaObj, sample) {
-    const width = areaObj.pixelWidth();
-    const height = areaObj.pixelHeight();
+    // shortened names for width and height
+    const width = areaObj.pixelWidth(); // area_detection.js
+    const height = areaObj.pixelHeight(); // area_detection.js
 
-    // skaalataan mallikuva alueen kokoiseksi
-    sample = scaleMatrix(sample, width, height);
+    // resize the sample image to the area size
+    sample = scaleMatrix(sample, width, height); // kaavat.js
     
-    var sad = 0; // sum of absolute differences
+    // largest possible difference
     const sadMax = width*height*255;
 
-    var xs = 0; 
-    for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) {
+    var xs = 0; var sad = 0;
+    for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) { // area_detection.js
 	var ys = 0;
-	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) {
+	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) { // area_detection.js
+	    // sum of absolute differences (SAD)
 	    sad += Math.abs(matrix[x][y] - sample[xs][ys]);
 	    ys++;
 	}
 	xs++;
     }
 
-    //console.log(1 - (sad/sadMax));
-    return 1 - (sad/sadMax); // relative to maximum sad
+    return 1 - (sad/sadMax); // relative to maximum SAD
 }
 
 /**
+ * Palauttaa matriisin joka vastaa kirjaimen fonttia
+ * 
  * Huom! Pienellä fontilla kirjaimen rajoissa virhettä
- * Huom! Sopiva fonttikoko "256px Arial"
+ * Huom! Esimerkki fontti "256px Arial"
+ * 
+ * param text {char} kirjain josta tehdään mallikuva
+ * param font {string} kirjaimen koko ja fontti
+ * return {number[][]} mallikirjaimen matriisi
  */
 function makeCharacter(text, font) {
-    var canvas = document.createElement("CANVAS");
-    var context = canvas.getContext("2d");
+    // create a canvas for sample character
+    const canvas = document.createElement("CANVAS");
+    const context = canvas.getContext("2d");
 
     // measure width and height
     setContext(context, font);
@@ -56,11 +64,11 @@ function makeCharacter(text, font) {
     }
 
     // measure text width and height based on context
-    let metrics = context.measureText(text);
-    let actualLeft = metrics.actualBoundingBoxLeft;
-    let actualRight = metrics.actualBoundingBoxRight;
-    let actualTop = metrics.actualBoundingBoxAscent;
-    let actualBottom = metrics.actualBoundingBoxDescent;
+    const metrics = context.measureText(text);
+    const actualLeft = metrics.actualBoundingBoxLeft;
+    const actualRight = metrics.actualBoundingBoxRight;
+    const actualTop = metrics.actualBoundingBoxAscent;
+    const actualBottom = metrics.actualBoundingBoxDescent;
 
     // setting width or height resets canvas context
     context.canvas.width = actualLeft + actualRight;
@@ -72,26 +80,32 @@ function makeCharacter(text, font) {
     // fit to canvas starting from topleft corner
     context.fillText(text, actualLeft, actualTop);
 
+    // convert measured canvas to a matrix 
     var matrix = makeCanvasMatrix(context);
     
     function makeCanvasMatrix(context) {
-	var width = context.canvas.width;
-	var height = context.canvas.height;
-	
-	var imgd = context.getImageData(0, 0, width, height);
-	var data = new Uint32Array(imgd.data.buffer);
+	// shortened names for width and height
+	const width = context.canvas.width;
+	const height = context.canvas.height;
+
+	// convert canvas image data into unsigned 32-bit array
+	const imgd = context.getImageData(0, 0, width, height);
+	const data = new Uint32Array(imgd.data.buffer);
 	
 	var matrix = new Array(width);
 	for (var x = 0; x < width; x++) {
 	    matrix[x] = new Array(height);
 	    for (var y = 0; y < height; y++) {
+		// pixel index in 32-bit array 
 		var pixel = data[(y*width)+x];
 
+		// red, green and blue (RGB) values
 		var r = (0xff000000 & pixel) >>> 24;
-		var b = (0x00ff0000 & pixel) >>> 16;
-		var g = (0x0000ff00 & pixel) >>> 8;
+		var g = (0x00ff0000 & pixel) >>> 16;
+		var b = (0x0000ff00 & pixel) >>> 8;
 
-		matrix[x][y] = Math.round((r+b+g)/3.0);
+		// calculate average between RGB values
+		matrix[x][y] = Math.round((r+g+b)/3.0);
 	    }
 	}
 	

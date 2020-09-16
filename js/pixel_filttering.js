@@ -72,7 +72,7 @@ function iterativeSelectionThreshold(matrix) {
     matrix = matrix.map(row => row.map(Math.floor));
 
     const margin = 1;
-    var treshold = getMatrixAverage(matrix); // kaavat.js
+    var treshold = averageMatrix(matrix); // kaavat.js
 
     while (true) {
 	var background = []; var foreground = [];

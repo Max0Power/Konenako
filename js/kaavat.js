@@ -27,15 +27,18 @@ function average(array) {
     return sum(array) / array.length;
 }
 
-function getMatrixAverage(matrix) {
-    var average = 0;
-    var count = 0;
-    for (var x = 0; x < matrix.length; x++) {
-	for (var y = 0; y < matrix[x].length; y++) {
-	    average += matrix[x][y];
-	    count += 1;
-	}
-    }
+/**
+ * @example
+ *   averageMatrix([[0,0],[0,0]]) === 0
+ *   averageMatrix([[2,2],[2,2]]) === 2
+ *   averageMatrix([[1,1],[2,2]]) === 1.5
+ */
+function averageMatrix(matrix) {
+    var average = 0; var count = 0;
+    matrix.forEach(row => row.forEach(col => {
+	average += col;
+	count += 1;
+    }));
     return average / count;
 }
 
@@ -86,19 +89,18 @@ function max(array) {
  *   makeMatrix(2,2,2) === [[2,2],[2,2]]
  */
 function makeMatrix(rows,cols,value) {
-    var t = [];
-    for (var i = 0; i < rows; i++) {
-	t[i] = [];
-	for (var j = 0; j < cols; j++) {
-	    t[i][j] = value;
+    var matrix = new Array(rows);
+    for (var x = 0; x < rows; x++) {
+	matrix[x] = new Array(cols);
+	for (var y = 0; y < cols; y++) {
+	    matrix[x][y] = value;
 	}
     }
-    return t;
+    return matrix;
 }
 
 /**
  * Skaalaa matriisin leveyden ja korkeuden mukaan
- * TODO: kokeile piirtää suoraan kanvakselle
  * 
  * param matrix {number[][]} skaalattava matriisi
  * param width {number} skaalatun matriisin leveys
@@ -108,25 +110,12 @@ function makeMatrix(rows,cols,value) {
 function scaleMatrix(matrix, width, height) {
     var scaleM = new Array(width);
     for (var x = 0; x < width; x++) {
-		
-	var xs = 0;
-	if (width > 1) {
-	    xs = parseInt(x/(width-1)*(matrix.length-1), 10);
-	}
-	
-	//var xs = parseInt((matrix.length/width)*x, 10);
+	var xs = parseInt((matrix.length/width)*x, 10);
 	scaleM[x] = new Array(height);
 	for (var y = 0; y < height; y++) {
-	    
-	    var ys = 0;
-	    if (height > 1) {
-		ys = parseInt(y/(height-1)*(matrix[0].length-1), 10);
-	    }
-	    
-	    //var ys = parseInt((matrix[0].length/height)*y, 10);
+	    var ys = parseInt((matrix[0].length/height)*y, 10);
 	    scaleM[x][y] = matrix[xs][ys];
 	}
     }
-
     return scaleM;
 }
