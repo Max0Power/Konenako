@@ -100,17 +100,18 @@ function makeCharacter(text, font) {
 
     // measure text width and height based on context
     const metrics = context.measureText(text);
-    const actualLeft = metrics.actualBoundingBoxLeft;
-    const actualRight = metrics.actualBoundingBoxRight;
-    const actualTop = metrics.actualBoundingBoxAscent;
+    const actualLeft = metrics.actualBoundingBoxLeft-1;
+    const actualRight = metrics.actualBoundingBoxRight-1;
+    const actualTop = metrics.actualBoundingBoxAscent-2;
     const actualBottom = metrics.actualBoundingBoxDescent;
 
     // setting width or height resets canvas context
-    context.canvas.width = actualLeft + actualRight;
-    context.canvas.height = actualTop + actualBottom;
+    canvas.width = actualLeft + actualRight;
+    canvas.height = actualTop + actualBottom;
 	
-	context.fillStyle = "White";
-	context.fillRect(0, 0, canvas.width, canvas.height);
+    // default white background
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     // canvas context was reset
     setContext(context, font);
@@ -132,19 +133,19 @@ function makeCharacter(text, font) {
 	
 	var matrix = new Array(width);
 	for (var x = 0; x < width; x++) {
-			matrix[x] = new Array(height);
-			for (var y = 0; y < height; y++) {
-			// pixel index in 32-bit array 
-			var pixel = data[(y*width)+x];
+	    matrix[x] = new Array(height);
+	    for (var y = 0; y < height; y++) {
+		// pixel index in 32-bit array 
+		var pixel = data[(y*width)+x];
 
-			// red, green and blue (RGB) values
-			var r = (0xff000000 & pixel) >>> 24;
-			var g = (0x00ff0000 & pixel) >>> 16;
-			var b = (0x0000ff00 & pixel) >>> 8;
+		// red, green and blue (RGB) values
+		var r = (0xff000000 & pixel) >>> 24;
+		var g = (0x00ff0000 & pixel) >>> 16;
+		var b = (0x0000ff00 & pixel) >>> 8;
 
-			// calculate average between RGB values
-			matrix[x][y] = 255;
-			if (parseInt((r + g + b) / 3) < 250) matrix[x][y] = 0;
+		// calculate average between RGB values
+		var mean = Math.round((r+g+b)/3.0);
+		matrix[x][y] = mean < 255 ? 0 : 255;
 	    }
 	}
 	

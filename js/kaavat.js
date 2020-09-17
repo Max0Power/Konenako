@@ -108,12 +108,15 @@ function makeMatrix(rows,cols,value) {
  * return {number[][]} skaalattu matriisi
  */
 function scaleMatrix(matrix, width, height) {
+    var scaleX = matrix.length/width;
+    var scaleY = matrix[0].length/height;
+    
     var scaleM = new Array(width);
     for (var x = 0; x < width; x++) {
-	var xs = parseInt((matrix.length/width)*x, 10);
+	var xs = parseInt(scaleX*x, 10);
 	scaleM[x] = new Array(height);
 	for (var y = 0; y < height; y++) {
-	    var ys = parseInt((matrix[0].length/height)*y, 10);
+	    var ys = parseInt(scaleY*y, 10);
 	    scaleM[x][y] = matrix[xs][ys];
 	}
     }
