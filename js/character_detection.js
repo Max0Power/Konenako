@@ -100,9 +100,9 @@ function makeCharacter(text, font) {
 
     // measure text width and height based on context
     const metrics = context.measureText(text);
-    const actualLeft = metrics.actualBoundingBoxLeft-1;
-    const actualRight = metrics.actualBoundingBoxRight-1;
-    const actualTop = metrics.actualBoundingBoxAscent-2;
+    const actualLeft = metrics.actualBoundingBoxLeft;
+    const actualRight = metrics.actualBoundingBoxRight;
+    const actualTop = metrics.actualBoundingBoxAscent;
     const actualBottom = metrics.actualBoundingBoxDescent;
 
     // setting width or height resets canvas context
