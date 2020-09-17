@@ -6,6 +6,32 @@
 "use strict";
 
 /**
+ * Skaalaa matriisin korkeuden mukaan
+ * 
+ * param matrix {number[][]} skaalattava matriisi
+ * param height {number} skaalatun matriisin korkeus
+ * return {number[][]} skaalattu matriisi
+ */
+/*function scaleMatrix(matrix, new_height) {
+	
+	var new_width = parseInt(new_height / matrix[0].length * matrix.length, 10);
+	
+    var scaleM = new Array(new_width);
+    for (var x = 0; x < new_width; x++) {
+		var xs = parseInt((matrix.length/new_width)*x, 10);
+		scaleM[x] = new Array(new_height);
+		for (var y = 0; y < new_height; y++) {
+			var ys = parseInt((matrix[0].length/new_height)*y, 10);
+			scaleM[x][y] = matrix[xs][ys];
+		}
+    }
+    return scaleM;
+}
+*/
+
+var seppo = false;
+
+/**
  * Vertaa alueen ja mallin pikseleiden osuvuutta
  * 
  * param matrix {number[][]} koko kuvan matriisi
@@ -18,11 +44,20 @@ function compareCharacter(matrix, areaObj, sample) {
     const width = areaObj.pixelWidth(); // area_detection.js
     const height = areaObj.pixelHeight(); // area_detection.js
 
+	var sample_scaled_width = parseInt(height / sample[0].length * sample.length, 10);
+	if (Math.abs(sample_scaled_width - width) > 10) {
+		return 0;
+	}
+	
+	// largest possible difference
+    const sadMax = width*height*255;
+	
     // resize the sample image to the area size
     sample = scaleMatrix(sample, width, height); // kaavat.js
-    
-    // largest possible difference
-    const sadMax = width*height*255;
+	
+	if (seppo === false) {
+		testingDrawPixelArray(document.getElementById("Testing"), sample);
+	}
 
     var xs = 0; var sad = 0;
     for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) { // area_detection.js
@@ -73,6 +108,9 @@ function makeCharacter(text, font) {
     // setting width or height resets canvas context
     context.canvas.width = actualLeft + actualRight;
     context.canvas.height = actualTop + actualBottom;
+	
+	context.fillStyle = "White";
+	context.fillRect(0, 0, canvas.width, canvas.height);
 
     // canvas context was reset
     setContext(context, font);
@@ -94,18 +132,19 @@ function makeCharacter(text, font) {
 	
 	var matrix = new Array(width);
 	for (var x = 0; x < width; x++) {
-	    matrix[x] = new Array(height);
-	    for (var y = 0; y < height; y++) {
-		// pixel index in 32-bit array 
-		var pixel = data[(y*width)+x];
+			matrix[x] = new Array(height);
+			for (var y = 0; y < height; y++) {
+			// pixel index in 32-bit array 
+			var pixel = data[(y*width)+x];
 
-		// red, green and blue (RGB) values
-		var r = (0xff000000 & pixel) >>> 24;
-		var g = (0x00ff0000 & pixel) >>> 16;
-		var b = (0x0000ff00 & pixel) >>> 8;
+			// red, green and blue (RGB) values
+			var r = (0xff000000 & pixel) >>> 24;
+			var g = (0x00ff0000 & pixel) >>> 16;
+			var b = (0x0000ff00 & pixel) >>> 8;
 
-		// calculate average between RGB values
-		matrix[x][y] = Math.round((r+g+b)/3.0);
+			// calculate average between RGB values
+			matrix[x][y] = 255;
+			if (parseInt((r + g + b) / 3) < 250) matrix[x][y] = 0;
 	    }
 	}
 	
@@ -113,6 +152,43 @@ function makeCharacter(text, font) {
     }
     
     return matrix;
+}
+
+var canv = null;
+function seppo(width, height, txt, font) {
+	if (canv === null) {
+		canv = document.createElement("CANVAS");
+	}
+	
+	width = parseInt(width, 10);
+	height = parseInt(height, 10);
+	
+	canv.width = width;
+	canv.height = height;
+	
+	var ctx = canv.getContext("2d");
+	
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, width, height);
+	
+	ctx.font = height + "px " + font;
+	ctx.fillStyle = "black";
+	ctx.textBaseline = "top";
+	
+	ctx.fillText(txt, parseInt(0, 10), parseInt(0, 10));
+	
+	var img_data = ctx.getImageData(0, 0, width, height).data;
+	var m = new Array(width);
+	for (var x = 0; x < width; x++) {
+		m[x] = new Array(height);
+		for (var y = 0; y < height; y++) {
+			var pixelIndex = y * (width * 4) + (x * 4);
+			m[x][y] = 255;
+			if (parseInt((img_data[pixelIndex] + img_data[pixelIndex+1] + img_data[pixelIndex+2]) / 3, 10) < 128) m[x][y] = 0;
+		}
+	}
+	
+	return m;
 }
 
 
@@ -179,6 +255,7 @@ function detectCharacters(bw_m, areas) {
 			areas.splice(0, 1);
 			
 			areas_processed_count++;
+			seppo = true;
 		}	
 		// Kaikki alueet kasitelty: jatketaan suoritusta detectCharacterGroups funktioon (character_group_detection.js)
 		if (areas.length < 1) {

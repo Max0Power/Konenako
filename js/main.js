@@ -45,6 +45,7 @@ function analyzeUserInput() {
 	    switch (option) {
 	    case "Default":
 		threshold = 128;
+		break;
 	    case "Iterative Selection":
 		threshold = iterativeSelectionThreshold(g_m);
 		break;
@@ -59,10 +60,21 @@ function analyzeUserInput() {
 		break;
 	    }
 	    
-	    var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
+	    //var bw_m = convertGrayscaleToBlackAndWhite(g_m, threshold);
+		var bw_m = grayscaleToBlackAndWhite(g_m);
 		
 		// Alueitten etsiminen:
-		detectAreas(bw_m, 7);
+		detectAreas(bw_m, 15);
+		
+		/*
+		for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
+			var c = String.fromCharCode(ascii_index);
+			var m = makeCharacter(c, "256px Arial");
+			m = scaleMatrix(m, 64, 32);
+			//var m = seppo(32, 64, c, "Arial");
+			testingDrawPixelArray(document.getElementById("Testing"), m);
+		}
+		*/
 		
 		/*
 		var characterGroups = groupCharacters(characters);
