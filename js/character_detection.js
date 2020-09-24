@@ -5,31 +5,6 @@
 
 "use strict";
 
-/**
- * Skaalaa matriisin korkeuden mukaan
- * 
- * param matrix {number[][]} skaalattava matriisi
- * param height {number} skaalatun matriisin korkeus
- * return {number[][]} skaalattu matriisi
- */
-/*function scaleMatrix(matrix, new_height) {
-	
-	var new_width = parseInt(new_height / matrix[0].length * matrix.length, 10);
-	
-    var scaleM = new Array(new_width);
-    for (var x = 0; x < new_width; x++) {
-		var xs = parseInt((matrix.length/new_width)*x, 10);
-		scaleM[x] = new Array(new_height);
-		for (var y = 0; y < new_height; y++) {
-			var ys = parseInt((matrix[0].length/new_height)*y, 10);
-			scaleM[x][y] = matrix[xs][ys];
-		}
-    }
-    return scaleM;
-}
-*/
-
-var seppo = false;
 
 /**
  * Vertaa alueen ja mallin pikseleiden osuvuutta
@@ -54,10 +29,6 @@ function compareCharacter(matrix, areaObj, sample) {
 	
     // resize the sample image to the area size
     sample = scaleMatrix(sample, width, height); // kaavat.js
-	
-	if (seppo === false) {
-		testingDrawPixelArray(document.getElementById("Testing"), sample);
-	}
 
     var xs = 0; var sad = 0;
     for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) { // area_detection.js
@@ -83,17 +54,17 @@ function compareCharacter(matrix, areaObj, sample) {
  * param font {string} kirjaimen koko ja fontti
  * return {number[][]} mallikirjaimen matriisi
  */
-function makeCharacter(text, font) {
+function makeCharacter(text, size, font) {
     // create a canvas for sample character
     const canvas = document.createElement("CANVAS");
     const context = canvas.getContext("2d");
 
     // measure width and height
-    setContext(context, font);
+    setContext(context, size, font);
 
-    function setContext(context, font) {
+    function setContext(context, size, font) {
 	// canvas context settings
-	context.font = font;
+	context.font =  `${size}px ${font}`;
 	context.fillStyle = "black";
 	context.textBaseline = "top";
     }
@@ -114,7 +85,7 @@ function makeCharacter(text, font) {
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // canvas context was reset
-    setContext(context, font);
+    setContext(context, size, font);
 
     // fit to canvas starting from topleft corner
     context.fillText(text, actualLeft, actualTop);
@@ -155,43 +126,6 @@ function makeCharacter(text, font) {
     return matrix;
 }
 
-var canv = null;
-function seppo(width, height, txt, font) {
-	if (canv === null) {
-		canv = document.createElement("CANVAS");
-	}
-	
-	width = parseInt(width, 10);
-	height = parseInt(height, 10);
-	
-	canv.width = width;
-	canv.height = height;
-	
-	var ctx = canv.getContext("2d");
-	
-	ctx.fillStyle = "white";
-	ctx.fillRect(0, 0, width, height);
-	
-	ctx.font = height + "px " + font;
-	ctx.fillStyle = "black";
-	ctx.textBaseline = "top";
-	
-	ctx.fillText(txt, parseInt(0, 10), parseInt(0, 10));
-	
-	var img_data = ctx.getImageData(0, 0, width, height).data;
-	var m = new Array(width);
-	for (var x = 0; x < width; x++) {
-		m[x] = new Array(height);
-		for (var y = 0; y < height; y++) {
-			var pixelIndex = y * (width * 4) + (x * 4);
-			m[x][y] = 255;
-			if (parseInt((img_data[pixelIndex] + img_data[pixelIndex+1] + img_data[pixelIndex+2]) / 3, 10) < 128) m[x][y] = 0;
-		}
-	}
-	
-	return m;
-}
-
 
 /**
  * Tekee tunnistuksen loydetyille alueille mustavalkokuvasta
@@ -206,8 +140,8 @@ function detectCharacters(bw_m, areas) {
 	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
 	
-	// Luodaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
-	var loop = setInterval(process, 10);
+	// Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
+	INTERVAL = setInterval(process, 10);
 	
 	// Luodaan vaste data:
 	var comparison_characters = [];
@@ -215,13 +149,13 @@ function detectCharacters(bw_m, areas) {
 	for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
 	    var c = String.fromCharCode(ascii_index);
 	    comparison_characters.push(c);
-	    var compare_m = makeCharacter(c, "256px Arial");
+	    var compare_m = makeCharacter(c, 64, "Arial");
 	    comparison_data.push(compare_m);
 	}
 	
 	
 	/**
-	 * Prosessi "looppi", joka tekee jokaiselle loydetylle alueelle tunnistuksen, joka maarittelee loytyiko merkki
+	 * Prosessi "INTERVALpi", joka tekee jokaiselle loydetylle alueelle tunnistuksen, joka maarittelee loytyiko merkki
 	 */
 	function process() {
 		
@@ -256,11 +190,10 @@ function detectCharacters(bw_m, areas) {
 			areas.splice(0, 1);
 			
 			areas_processed_count++;
-			seppo = true;
 		}	
 		// Kaikki alueet kasitelty: jatketaan suoritusta detectCharacterGroups funktioon (character_group_detection.js)
 		if (areas.length < 1) {
-			clearInterval(loop);
+			clearInterval(INTERVAL);
 			console.log("Characters found: " + characters.length);
 			detectCharacterGroups(characters)
 		}

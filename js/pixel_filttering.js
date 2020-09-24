@@ -5,8 +5,7 @@
 
 "use strict";
 
-
-function grayscaleToBlackAndWhite(g_m) {
+function grayscaleToBlackAndWhite(g_m, invert_colors) {
 	var pixelCount = g_m.length * g_m[0].length;
 	
 	// Lasketaan kuvan valoisuuden keskiarvo
@@ -40,9 +39,15 @@ function grayscaleToBlackAndWhite(g_m) {
 			// Tilanne, jossa pikseli muunnetaan mustaksi:
 			if ( (darkPixelCount <= lightPixelCount && g_m[x][y] < treshold) || (lightPixelCount < darkPixelCount && g_m[x][y] >= treshold)) {
 				bw_m[x][y] = 0;
+				if (invert_colors === true) {
+					bw_m[x][y] = 255;
+				}
 			} // muuten pikseli on valkoinen
 			else {
 				bw_m[x][y] = 255;
+				if (invert_colors === true) {
+					bw_m[x][y] = 0;
+				}
 			}
 		}
 	}

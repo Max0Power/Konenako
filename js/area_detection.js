@@ -14,6 +14,9 @@
  */
 function detectAreas(bw_m, look_out_distance) {
 	
+	look_out_distance = parseInt(look_out_distance, 10);
+	if (look_out_distance < 1) look_out_distance = 1;
+	
 	// Piirto --> piirretaan mustavalko kuva:
 	drawPixelArray(bw_m);
 	
@@ -40,11 +43,11 @@ function detectAreas(bw_m, look_out_distance) {
 	
 	var areas = [];
 	
-	var loop = setInterval(process, 10);
+	INTERVAL = setInterval(process, 20);
 	
 	
 	/*
-	 * Prosessi "looppi", joka suorittaa mahdollisten kirjainten etsimisen kuvasta.
+	 * Prosessi "INTERVAL", joka suorittaa mahdollisten kirjainten etsimisen kuvasta.
 	 * Suoritetaan intervallina, koska operaatio on suhteellisen raskas ja selain voi kaatua esimerkiksi liian isosta kuvasta.
 	 */
 	function process() {
@@ -121,7 +124,7 @@ function detectAreas(bw_m, look_out_distance) {
 		
 		// Koko kuva on kasitelty: Jatketaan detectCharacters funktioon (character_detection.js)
 		if (processed_count >= processed.length * processed[0].length && open_set.length < 1) {
-			clearInterval(loop);
+			clearInterval(INTERVAL);
 			console.log("Areas detected: " + areas.length);
 			detectCharacters(bw_m, areas);
 		}
