@@ -67,3 +67,7 @@ function testingDrawPixelArray(parent_div, matrix) {
 	
 	ctx.putImageData(imgData, 0, 0);
 }
+
+function drawHOG(normalizedGradients) {
+	
+}

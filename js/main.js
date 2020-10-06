@@ -46,8 +46,10 @@ function analyzeUserInput() {
 		// mustavalko muunnos:
 		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
 		
+		hogTestaus(g_m);
+		
 		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-		detectAreas(bw_m, document.getElementById("AreaSearchDst").value);
+		//detectAreas(bw_m, document.getElementById("AreaSearchDst").value);
 	}
 }
 
