@@ -14,19 +14,21 @@
  * param sample {number[][]} verrattava kirjain
  * return {number} alueen ja kirjaimen vastaavuus
  */
-function compareCharacter(matrix, areaObj, sample) {
+function compareCharacter(matrix, areaObj, character) {
     // shortened names for width and height
     const width = areaObj.pixelWidth(); // area_detection.js
     const height = areaObj.pixelHeight(); // area_detection.js
 
-	var sample_scaled_width = parseInt(height / sample[0].length * sample.length, 10);
-	if (Math.abs(sample_scaled_width - width) > 10) {
-		return 0;
-	}
-	
-	// largest possible difference
+    var sample = makeCharacter2(character, height, "Arial");
+    
+    var sample_scaled_width = parseInt(height / sample[0].length * sample.length, 10);
+    if (Math.abs(sample_scaled_width - width) > 10) {
+	return 0;
+    }
+    
+    // largest possible difference
     const sadMax = width*height*255;
-	
+    
     // resize the sample image to the area size
     sample = scaleMatrix(sample, width, height); // kaavat.js
 
@@ -126,6 +128,107 @@ function makeCharacter(text, size, font) {
     return matrix;
 }
 
+// create a canvas for sample character
+const canvas = document.createElement("CANVAS");
+const context = canvas.getContext("2d");
+
+/**
+ * Palauttaa matriisin joka vastaa kirjaimen fonttia
+ * 
+ * Huom! Pienell‰ fontilla kirjaimen rajoissa virhett‰
+ * Huom! Esimerkki fontti "256px Arial"
+ * 
+ * param text {char} kirjain josta tehd‰‰n mallikuva
+ * param font {string} kirjaimen koko ja fontti
+ * return {number[][]} mallikirjaimen matriisi
+ */
+function makeCharacter2(text, size, font) {
+    const fontsize = getSize(context, size, font);
+    
+    function getSize(context, size, font) {
+	var fontsize = 0;
+	var truesize = 0;
+	
+	while (truesize < size) {
+	    setContext(context, fontsize, font);
+
+	    var metrics = context.measureText(text);
+	    var actualTop = metrics.actualBoundingBoxAscent;
+	    var actualBottom = metrics.actualBoundingBoxDescent;
+
+	    truesize = actualTop + actualBottom;
+	    fontsize++;
+	}
+	
+	return fontsize;
+    }
+    
+    // measure width and height
+    setContext(context, fontsize, font);
+
+    function setContext(context, size, font) {
+	// canvas context settings
+	context.font =  `${size}px ${font}`;
+	context.fillStyle = "black";
+	context.textBaseline = "top";
+    }
+
+    // measure text width and height based on context
+    const metrics = context.measureText(text);
+    const actualLeft = metrics.actualBoundingBoxLeft;
+    const actualRight = metrics.actualBoundingBoxRight;
+    const actualTop = metrics.actualBoundingBoxAscent;
+    const actualBottom = metrics.actualBoundingBoxDescent;
+
+    // setting width or height resets canvas context
+    canvas.width = actualLeft + actualRight;
+    canvas.height = actualTop + actualBottom;
+	
+    // default white background
+    context.fillStyle = "white";
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    // canvas context was reset
+    setContext(context, fontsize, font);
+
+    // fit to canvas starting from topleft corner
+    context.fillText(text, actualLeft, actualTop);
+
+    // convert measured canvas to a matrix 
+    var matrix = makeCanvasMatrix(context);
+    
+    function makeCanvasMatrix(context) {
+	// shortened names for width and height
+	const width = context.canvas.width;
+	const height = context.canvas.height;
+
+	// convert canvas image data into unsigned 32-bit array
+	const imgd = context.getImageData(0, 0, width, height);
+	const data = new Uint32Array(imgd.data.buffer);
+	
+	var matrix = new Array(width);
+	for (var x = 0; x < width; x++) {
+	    matrix[x] = new Array(height);
+	    for (var y = 0; y < height; y++) {
+		// pixel index in 32-bit array 
+		var pixel = data[(y*width)+x];
+
+		// red, green and blue (RGB) values
+		var r = (0xff000000 & pixel) >>> 24;
+		var g = (0x00ff0000 & pixel) >>> 16;
+		var b = (0x0000ff00 & pixel) >>> 8;
+
+		// calculate average between RGB values
+		var mean = Math.round((r+g+b)/3.0);
+		matrix[x][y] = mean < 255 ? 0 : 255;
+	    }
+	}
+	
+	return matrix;
+    }
+    
+    return matrix;
+}
 
 /**
  * Tekee tunnistuksen loydetyille alueille mustavalkokuvasta
@@ -140,17 +243,15 @@ function detectCharacters(bw_m, areas) {
 	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
 	
-	// Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
-	INTERVAL = setInterval(process, 10);
+    // Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
+        clearInterval(INTERVAL);
+ 	INTERVAL = setInterval(process, 10);
 	
 	// Luodaan vaste data:
-	var comparison_characters = [];
-	var comparison_data = [];
+    var comparison_characters = [];
 	for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
 	    var c = String.fromCharCode(ascii_index);
 	    comparison_characters.push(c);
-	    var compare_m = makeCharacter(c, 64, "Arial");
-	    comparison_data.push(compare_m);
 	}
 	
 	
@@ -166,8 +267,8 @@ function detectCharacters(bw_m, areas) {
 			
 			// Lasketaan todennakoisyydet suhteessa vastedatan merkkeihin:
 			var probablity_array = [];
-			for (var i = 0; i < comparison_data.length; i++) {
-				var probablity = compareCharacter(bw_m, areas[0], comparison_data[i]);		
+			for (var i = 0; i < comparison_characters.length; i++) {
+				var probablity = compareCharacter(bw_m, areas[0], comparison_characters[i]);		
 				probablity_array.push(probablity);
 			}
 			
@@ -180,11 +281,9 @@ function detectCharacters(bw_m, areas) {
 			}
 		    
 			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
-			if (probablity_array[best_probablity_index] > 0.40) {
 			    characters.push(new Character(comparison_characters[best_probablity_index], areas[0]));
 			    drawArea(areas[0].topLeft, areas[0].bottomRight, "green");
 			    console.log(comparison_characters[best_probablity_index]);
-			}
 			
 			// Poistetaan kasitelty Area -olio areas taulukosta:
 			areas.splice(0, 1);

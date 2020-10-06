@@ -40,7 +40,8 @@ function analyzeUserInput() {
 	img.onload = function(e) {
 		
 		// grayscale muunnos:
-		var g_m = readImageToGrayscaleMatrix(img);
+	    var g_m = readImageToGrayscaleMatrix(img);
+	    //var g_m = makeCharacter2("i", 64, "Arial");
 		
 		// mustavalko muunnos:
 		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);

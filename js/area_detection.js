@@ -42,7 +42,8 @@ function detectAreas(bw_m, look_out_distance) {
 	var area_bottom_right;
 	
 	var areas = [];
-	
+
+        clearInterval(INTERVAL);
 	INTERVAL = setInterval(process, 20);
 	
 	
