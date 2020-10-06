@@ -1,8 +1,9 @@
 "use strict";
 
 function hogTestaus(matrix) {
-	var seppo = normalizeGradients(batch(distances(nearestSixteen(matrix))));
+	var seppo = finalCountdown(normalizeGradients(batch(distances(nearestSixteen(matrix)))));
 	console.log("Chunkkify: " + seppo.length + ", " + seppo[0].length);
+	console.log(seppo);
 }
 
 
@@ -94,10 +95,13 @@ function normalizeGradients(histograms) {
 			 
 			 k = Math.sqrt(k);
 			 
-			 if (k  <= 0) break;
-			 for (var z = 0; z < jumbo.length; z++) {
-				 jumbo[z] /= k;
+			 if (k > 0) {
+				for (var z = 0; z < jumbo.length; z++) {
+					  jumbo[z] /= k;
+				 }
 			 }
+			
+			 
 			 
 			 normalizedGradients[x][y] = jumbo;
 		}
@@ -106,10 +110,36 @@ function normalizeGradients(histograms) {
 	return normalizedGradients;
 }
 
-function magicFinalTouch(normalizedGradients) {
-	for (var x = 0; x < normalizeGradients.length; x++) {
-		for (var y = 0; y < normalizeGradients[0].length; y++) {
-			
+function finalCountdown(normalizedGradients) {
+	var width = (normalizedGradients.length + 1) / 2;
+	var height = (normalizedGradients[0].length + 1) / 2;
+	console.log("HeeeeeeeeeeeeeeeeeHeeeeeeeeeeeeeeeeeeeee" + width + "|" + normalizedGradients.length);
+	
+	var result = new Array(width);
+	for (var x = 0; x < width; x++) {
+		result[x] = new Array(height);
+		for (var y = 0; y < height; y++) {
+			result[x][y] = new Array(36);
+			for (var z = 0; z < 36; z++) {
+				result[x][y][z] = 0;
+			}
 		}
 	}
+	
+	for (var x = 0; x < normalizedGradients.length; x++) {
+		for (var y = 0; y < normalizedGradients[0].length; y++) {
+			for (var z = 0; z < normalizedGradients[x][y].length; z++) {
+				var m_x = x * 8 + (z - (parseInt(z/16, 10) * 16));
+				var m_y = y * 8 + (parseInt(z / 16, 10));
+				
+				var chunk_x = parseInt(m_x / 16, 10);
+				var chunk_y = parseInt(m_y / 16, 10);
+				var chunk_z = (m_y  - (chunk_y * 16)) * 16 + (m_x - (chunk_x * 16));
+				
+				result[chunk_x][chunk_y][chunk_z] += normalizedGradients[x][y][z];
+			}				
+		}
+	}
+	
+	return result;
 }
