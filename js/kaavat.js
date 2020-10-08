@@ -123,17 +123,71 @@ function scaleMatrix(matrix, width, height) {
     return scaleM;
 }
 
+/**
+ * Creates matrix from the coordinates inside the image.
+ * param matrix {number[][]} matrix from the image
+ * param topleft {number[]} area's top left corner
+ * param bottomright {number[]} area's bottom right corner
+ * return {number[][]} matrix from the area object
+ */
 function reduceMatrix(matrix, topleft, bottomright) {
-    var t = []; var xs = 0; var ys = 0;
+    var t = [];
     for (var x = topleft[0]; x <= bottomright[0]; x++) {
-	t[xs] = [];
-	ys = 0;
+	t.push([]);
 	for (var y = topleft[1]; y <= bottomright[1]; y++) {
-	    t[xs][ys] = matrix[x][y];
-	    ys++
+	    t[t.length-1].push(matrix[x][y]);
 	}
-	xs++
     }
-    
     return t;
+}
+
+/**
+ * Reduces 2D matrix to 1D array.
+ * param matrix {number[][]} matrix
+ * return {number[]} array
+ * @example
+ *   reduceDimension([[],[]]) === []
+ *   reduceDimension([[1,2],[]]) === [1,2]
+ *   reduceDimension([[],[3,4]]) === [3,4]
+ *   reduceDimension([[1,2],[3,4]]) === [1,2,3,4]
+ */
+function reduceDimension(matrix) {
+    let array = [];
+    matrix.forEach(row => {
+	row.forEach(col => {
+	    array.push(col);
+	});
+    });
+    return array;
+}
+
+/**
+ * Pearson correlation coefficient (PCC)
+ * param matrix {number[][]} first matrix
+ * param sample {number[][]} second matrix
+ * return correlation coefficient
+ */
+function pcc(matrix, sample) {
+    const arrM = reduceDimension(matrix);
+    const arrS = reduceDimension(sample);
+
+    console.assert(arrM.length !== arrS.length, "Error occured!");
+
+    const meanM = average(arrM);
+    const meanS = average(arrS);
+
+    var pointer = 0;
+    var divisorL = 1;
+    var divisorR = 1;
+
+    for (var i = 0; i < arrM.length; i++) {
+	pointer += (arrM[i]-meanM)*(arrS[i]-meanS);
+	divisorL += Math.pow(arrM[i]-meanM,2);
+	divisorR += Math.pow(arrS[i]-meanS,2);
+    }
+
+    divisorL = Math.sqrt(divisorL);
+    divisorR = Math.sqrt(divisorR);
+    
+    return pointer / (divisorL * divisorR);
 }
