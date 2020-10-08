@@ -51,11 +51,10 @@ function hog(matrix) {
 				matY[x][y] = matrix[x][y-1] - matrix[x][y+1];
 				}
 
-				matM[x][y] = Math.sqrt(
-				Math.pow(matX[x][y],2)+
-					Math.pow(matY[x][y],2));
-				matO[x][y] = 0;
-				if (matX[x][y] != 0) matO[x][y] = Math.atan(matY[x][y]/matX[x][y]);
+				matM[x][y] = Math.sqrt(Math.pow(matX[x][y],2) + Math.pow(matY[x][y],2));
+				matO[x][y] = parseInt(Math.atan2(matY[x][y], matX[x][y]) * (180 / Math.PI), 10);
+				if (matO[x][y] < 0) matO[x][y] += 180;
+				console.log(matO[x][y]);
 			}
 		}
 
