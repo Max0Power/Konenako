@@ -125,10 +125,16 @@ function scaleMatrix(matrix, width, height) {
 
 /**
  * Creates matrix from the coordinates inside the image.
+ * 
  * param matrix {number[][]} matrix from the image
  * param topleft {number[]} area's top left corner
  * param bottomright {number[]} area's bottom right corner
  * return {number[][]} matrix from the area object
+ * @example
+ *   reduceMatrix([[1,2],[3,4]],[0,0],[1,1]) === [[1,2],[3,4]]
+ *   reduceMatrix([[1,2],[3,4]],[0,0],[1,0]) === [[1,3]]
+ *   reduceMatrix([[1,2],[3,4]],[0,0],[0,1]) === [[1,2]]
+ *   reduceMatrix([[1,2],[3,4]],[1,1],[1,1]) === [[4]]
  */
 function reduceMatrix(matrix, topleft, bottomright) {
     var t = [];
@@ -143,6 +149,7 @@ function reduceMatrix(matrix, topleft, bottomright) {
 
 /**
  * Reduces 2D matrix to 1D array.
+ * 
  * param matrix {number[][]} matrix
  * return {number[]} array
  * @example
@@ -162,16 +169,18 @@ function reduceDimension(matrix) {
 }
 
 /**
+ * Compares pixel values of two matrices
  * Pearson correlation coefficient (PCC)
+ * 
  * param matrix {number[][]} first matrix
  * param sample {number[][]} second matrix
- * return correlation coefficient
+ * return correlation coefficient 0-1
  */
 function pcc(matrix, sample) {
     const arrM = reduceDimension(matrix);
     const arrS = reduceDimension(sample);
 
-    console.assert(arrM.length !== arrS.length, "Error occured!");
+    console.assert(arrM.length === arrS.length, "Error occured!");
 
     const meanM = average(arrM);
     const meanS = average(arrS);
@@ -188,6 +197,35 @@ function pcc(matrix, sample) {
 
     divisorL = Math.sqrt(divisorL);
     divisorR = Math.sqrt(divisorR);
+
+    const r = pointer / (divisorL * divisorR);
     
-    return pointer / (divisorL * divisorR);
+    return Math.abs(r);
+}
+
+/**
+ * Sum of Absolute Differences (SAD)
+ * Compares pixel values of two matrices
+ * 
+ * param matrix {number[][]} first matrix
+ * param sample {number[][]} second matrix
+ * return {number} absolute differences 0-1
+ */
+function sad(matrix, sample) {
+    const arrM = reduceDimension(matrix);
+    const arrS = reduceDimension(sample);
+
+    console.assert(arrM.length === arrS.length, "Error occured!");
+    
+    // largest possible difference
+    const sadMax = arrM.length*255;  
+    
+    var sad = 0;
+    for (var i = 0; i < arrM.length; i++) {
+	// sum of absolute differences (SAD)
+	sad += Math.abs(arrM[i] - arrS[i]);
+    }
+
+    // relative to maximum SAD
+    return 1 - (sad/sadMax);
 }

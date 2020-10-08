@@ -19,31 +19,22 @@ function compareCharacter(matrix, areaObj, character) {
     const width = areaObj.pixelWidth(); // area_detection.js
     const height = areaObj.pixelHeight(); // area_detection.js
 
-    var sample = makeCharacter2(character, height, "Arial");
+    var _matrix = reduceMatrix(matrix, areaObj.topLeft, areaObj.bottomRight);
+    
+    var sample = makeCharacter(character, height, "Arial");
     
     var sample_scaled_width = parseInt(height / sample[0].length * sample.length, 10);
     if (Math.abs(sample_scaled_width - width) > 10) {
 	return 0;
     }
     
-    // largest possible difference
-    const sadMax = width*height*255;
-    
     // resize the sample image to the area size
     sample = scaleMatrix(sample, width, height); // kaavat.js
 
-    var xs = 0; var sad = 0;
-    for (var x = areaObj.topLeft[0]; x <= areaObj.bottomRight[0]; x++) { // area_detection.js
-	var ys = 0;
-	for (var y = areaObj.topLeft[1]; y <= areaObj.bottomRight[1]; y++) { // area_detection.js
-	    // sum of absolute differences (SAD)
-	    sad += Math.abs(matrix[x][y] - sample[xs][ys]);
-	    ys++;
-	}
-	xs++;
-    }
-
-    return 1 - (sad/sadMax); // relative to maximum SAD
+    console.assert(_matrix.length === sample.length, "Error occured!");
+    console.assert(_matrix[0].length === sample[0].length, "Error occured!");
+    
+    return sad(_matrix, sample)
 }
 
 /**
