@@ -48,6 +48,7 @@ function analyzeUserInput() {
 		
 		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
 		detectAreas(bw_m, document.getElementById("AreaSearchDst").value);
+		tesseract();
 	}
 }
 
@@ -81,4 +82,31 @@ function updateProgressBar(percent, seconds) {
     // changes the text content of a progress bar
     const text = `${str_percent} ${str_seconds} ${str_estimate}`;
     document.getElementById("ProgressBar").textContent = text;
+}
+
+function tesseract() {
+    const exampleImage = 'https://tesseract.projectnaptha.com/img/e\
+ng_bw.png';
+
+    const worker = Tesseract.createWorker({
+	logger: m => console.log(m)
+    });
+    Tesseract.setLogging(true);
+    work();
+
+    async function work() {
+	await worker.load();
+	await worker.loadLanguage('eng');
+	await worker.initialize('eng');
+
+	let result = await worker.detect(exampleImage);
+	console.log(result.data);
+
+	result = await worker.recognize(exampleImage);
+
+	const out = document.getElementById("TextOutput");
+	out.value = result.data.text;
+
+	await worker.terminate();
+    }
 }
