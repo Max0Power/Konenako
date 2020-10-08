@@ -122,3 +122,18 @@ function scaleMatrix(matrix, width, height) {
     }
     return scaleM;
 }
+
+function reduceMatrix(matrix, topleft, bottomright) {
+    var t = []; var xs = 0; var ys = 0;
+    for (var x = topleft[0]; x <= bottomright[0]; x++) {
+	t[xs] = [];
+	ys = 0;
+	for (var y = topleft[1]; y <= bottomright[1]; y++) {
+	    t[xs][ys] = matrix[x][y];
+	    ys++
+	}
+	xs++
+    }
+    
+    return t;
+}
