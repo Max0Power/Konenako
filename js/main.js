@@ -99,7 +99,7 @@ async function tesseract(file) {
     const options = {
 	workerPath: 'lib/worker.min.js',
 	corePath: 'lib/tesseract-core.wasm.js',
-	langPath: 'lib/tessdata/',
+	langPath: 'tessdata',
 	logger: progress
     }
 
