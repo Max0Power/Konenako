@@ -48,7 +48,7 @@ function analyzeUserInput() {
 		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
 		
 		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-		detectAreas(bw_m, document.getElementById("AreaSearchDst").value);
+		//detectAreas(bw_m, document.getElementById("AreaSearchDst").value); // Ei kaytossa talla hetkella --> keskitytaan tesseractiin nyt
 	    
 	    tesseract(img.src); // recognize text using Tesseract.js
 	}
@@ -97,9 +97,9 @@ async function tesseract(file) {
     const timer = Date.now();
     
     const options = {
-	workerPath: 'lib/worker.min.js',
-	corePath: 'lib/tesseract-core.wasm.js',
-	langPath: 'tessdata',
+	//workerPath: 'lib/worker.min.js', <--  aiheuttaa errorin (ei pysty lataamaan (MIME ERROR))
+	//corePath: 'lib/tesseract-core.wasm.js', <-- aiheuttaa errorin, (ei pysty lataamaan (MIME ERROR))
+	//langPath: 'tessdata', <-- toimii, mutta ei ole valttamaton?
 	logger: progress
     }
 
