@@ -1,6 +1,7 @@
 /**
  * @author Jussi Parviainen ja Harri Linna
  * @version 02.09.2020
+ * @version 10.10.2020, Tesseract
  */
  
 "use strict";
@@ -48,7 +49,8 @@ function analyzeUserInput() {
 		
 		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
 		detectAreas(bw_m, document.getElementById("AreaSearchDst").value);
-		tesseract();
+	    
+	    tesseract(img.src); // recognize text using Tesseract.js
 	}
 }
 
@@ -66,8 +68,8 @@ function toggleImage() {
 /**
  * Updates the progress bar's text content
  * 
- * param percent {number} perentage completed
- * param seconds {number} timer start seconds
+ * @param percent {number} perentage completed
+ * @param seconds {number} timer start seconds
  */
 function updateProgressBar(percent, seconds) {
     // calculates estimated runtime from parameters
@@ -80,33 +82,80 @@ function updateProgressBar(percent, seconds) {
     const str_estimate =`ETA ${estimate} second(s)`
 
     // changes the text content of a progress bar
-    const text = `${str_percent} ${str_seconds} ${str_estimate}`;
+    const text = `${str_percent}, ${str_seconds}, ${str_estimate}`;
     document.getElementById("ProgressBar").textContent = text;
 }
 
-function tesseract() {
-    const exampleImage = 'https://tesseract.projectnaptha.com/img/e\
-ng_bw.png';
+/**
+ * Optical Character Recognition (OSD) using Tesseract.js
+ * 
+ * @param file {File} File object, img or canvas element, Blob object,
+ *   path or URL to an image, base64 encoded image
+ */
+async function tesseract(file) {
+    // start timer
+    const timer = Date.now();
+    
+    const options = {
+	workerPath: 'lib/worker.min.js',
+	corePath: 'lib/tesseract-core.wasm.js',
+	langPath: 'lib/tessdata/',
+	logger: progress
+    }
 
-    const worker = Tesseract.createWorker({
-	logger: m => console.log(m)
-    });
-    Tesseract.setLogging(true);
+    // Default paths to the Tesseract's dependencies
+    // worker: https://unpkg.com/browse/tesseract.js@2.1.3/dist/worker.min.js
+    // core:   https://unpkg.com/tesseract.js-core@2.1.0/tesseract-core.wasm.js
+    // lang:   https://tessdata.projectnaptha.com/4.0.0
+    
+    // TODO: langPath vaihtaminen epäonnistuu
+    // TODO: traineddataa ei taideta käyttää
+
+    function progress(e) {
+	if (e.status === "recognizing text") {
+	    // changes the text content of a progress bar
+	    let percent = parseInt(e.progress * 100, 10);
+	    updateProgressBar(percent, timer);
+	}
+    }
+    
+    // run tesseract in a background thread
+    const worker = Tesseract.createWorker(options);
+    
+    // show detailed information
+    Tesseract.setLogging(false);
     work();
 
     async function work() {
+	// inits worker thread
 	await worker.load();
 	await worker.loadLanguage('eng');
 	await worker.initialize('eng');
 
-	let result = await worker.detect(exampleImage);
-	console.log(result.data);
+	// Optical Character Recognition (OCR)
+	let result = await worker.recognize(file);
 
-	result = await worker.recognize(exampleImage);
-
-	const out = document.getElementById("TextOutput");
-	out.value = result.data.text;
-
+	// stops worker thread
 	await worker.terminate();
+
+	// draws lines, words and symbols
+	drawGroup(result.data.lines, 'black');
+	drawGroup(result.data.words, 'black');
+	drawGroup(result.data.symbols, 'black');
+
+	function drawGroup(group, color) {
+	    group.forEach(obj => {
+		// objects top left and bottom right corners
+		let topleft = [obj.bbox.x0, obj.bbox.y0];
+		let bottomright = [obj.bbox.x1, obj.bbox.y1];
+
+		// draws a square around the object
+		drawArea(topleft, bottomright, color); // drawing.js
+	    });
+	}
+
+	// changes the text content of a output textarea
+	const textarea = document.getElementById("TextOutput")
+	textarea.value = result.data.text;
     }
 }
