@@ -5,36 +5,7 @@
 
 "use strict";
 
-/**
- * Vertaa alueen ja mallin pikseleiden osuvuutta
- * 
- * param matrix {number[][]} koko kuvan matriisi
- * param areaObj {Area} verrattavan kirjaimen rajat
- * param sample {number[][]} verrattava kirjain
- * return {number} alueen ja kirjaimen vastaavuus
- */
-function compareCharacter(matrix, areaObj, character) {
-    // shortened names for width and height
-    const width = areaObj.pixelWidth(); // area_detection.js
-    const height = areaObj.pixelHeight(); // area_detection.js
-
-    var _matrix = reduceMatrix(matrix, areaObj.topLeft, areaObj.bottomRight);
-    
-    var sample = makeCharacter(character, height, "Arial");
-    
-    var sample_scaled_width = parseInt(height / sample[0].length * sample.length, 10);
-    if (Math.abs(sample_scaled_width - width) > 10) {
-	return 0;
-    }
-    
-    // resize the sample image to the area size
-    sample = scaleMatrix(sample, width, height); // kaavat.js
-
-    console.assert(_matrix.length === sample.length, "Error occured!");
-    console.assert(_matrix[0].length === sample[0].length, "Error occured!");
-    
-    return sad(_matrix, sample)
-}
+const MIN_CONFIDENCE = 0.6;
 
 /**
  * Tekee tunnistuksen loydetyille alueille mustavalkokuvasta
@@ -90,7 +61,7 @@ function detectCharacters(bw_m, areas) {
 			}
 		    
 			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
-			if (probablity_array[best_probablity_index] > 0.6) {
+			if (probablity_array[best_probablity_index] > MIN_CONFIDENCE) {
 			    characters.push(new Character(basic_comparison_data.getCharacter(best_probablity_index), areas[0]));
 			    drawArea(areas[0].topLeft, areas[0].bottomRight, "green");
 			    console.log(basic_comparison_data.getCharacter(best_probablity_index));

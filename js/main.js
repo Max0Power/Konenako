@@ -35,7 +35,7 @@ function analyzeUserInput() {
 		img.src = URL.createObjectURL(fileInput.files[0]);
 	}
 	else {
-		img.src = "images/Example.png";
+		img.src = "images/Example2.png";
 	}
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {

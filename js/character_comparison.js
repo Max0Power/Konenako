@@ -5,7 +5,7 @@
  
 "use strict";
 
-
+const MAX_EPS_TO_RATIO = 0.2;
 
 class ComparisonData {
 	
@@ -109,12 +109,11 @@ class ComparisonData {
 		var m_ratio = m_to_compare_with.length / m_to_compare_with[0].length;
 		var sample_ratio = this.comparison_data[index].length / this.comparison_data[index][0].length;
 		var eps = 0.2;
-		if (m_ratio < sample_ratio - eps || m_ratio > sample_ratio + eps) return 0;
-		if (m_to_compare_with.length < 5 || m_to_compare_with[0].length < 0) return 0;
+		if (m_ratio < sample_ratio - MAX_EPS_TO_RATIO || m_ratio > sample_ratio + MAX_EPS_TO_RATIO) return 0;
+		if (m_to_compare_with.length < 5 || m_to_compare_with[0].length < 5) return 0;
 		
 		//..... .... lopulta skaalataan samaan kokoon
 		var sample_scaled = scaleMatrix(this.comparison_data[index], m_to_compare_with.length, m_to_compare_with[0].length); // kaavat.js
-		
 		
 		return sad(m_to_compare_with, sample_scaled);
 	}
