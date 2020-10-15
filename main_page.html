@@ -26,35 +26,38 @@
 	<body>
 		<h1>IMAGE TO TEXT GENERATOR</h1>
 		<div id="FileDiv">
+		<hr>
 			<h2>Input:</h2>
+			
+				<!-- Image Input: -->
+				<input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
+				<!-- Show Image -->
+				<label for="toggleimage">Show image: </label>
+				<input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
+				
+				<label for="detectionMethod">Detection method: </label>
+				<select id="DetectionMethod" name="detectionMethod">
+					<option value="0" selected="selected">Tesseract</option>
+					<option value="1">Custom</option>
+				</select>
+				
+				<div style="border:1px solid black;">
+				
 				<label for="invertColors">Invert colors: </label>
 				<input type="checkbox" id="InvertColors" name="invertColors" onchange=analyzeUserInput()></input>
 				<label for="areaSearchDst">Area search Distance: </label>
-				<input type="number" id="AreaSearchDst" name="areaSearchDst" value="1" min="1" max="32" onchange=analyzeUserInput()> 
-				<hr>
-					<!-- Input Area -->
-					<input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
-					<label for="toggleimage">Show image: </label>
-					<input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage()></input>
-					<label for="threshold">Thresholding method: </label>
-					<select id="Threshold" name="threshold">
-						<option value="0" selected="selected">Default</option>
-						<option value="1">Iterative Selection</option>
-						<option value="2">BHT</option>
-						<option value="3">Otsu's Threshold</option>
-					</select>
-					<!-- TODO: fonttivalinta -->
-					<br>
-					<p>Supported formats: bmp, jpg, png, pbm</p>
-					<br>
-					<!-- Progress Bar -->
-					<div>
-						<span id="ProgressBar"></span>
-					</div>
-					<!-- Image -->
-					<canvas id="Drawing"></canvas>
-					<br>
-				<hr>
+				<input type="number" id="AreaSearchDst" name="areaSearchDst" value="1" min="1" max="32" onchange=analyzeUserInput()></input>
+				
+				</div>
+				
+				<!-- Progress Bar -->
+				<div>
+					<span id="ProgressBar"></span>
+				</div>
+				<!-- Image -->
+				<canvas id="Drawing"></canvas>
+				<br>
+		<hr>
 			<h2>Output:</h2>
 			<!-- Output Area -->
 			<textarea id="TextOutput"></textarea>

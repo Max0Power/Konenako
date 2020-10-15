@@ -12,16 +12,13 @@
  @param {Int[][]} bw_m - Mustavalko kuvan matriisi
  @return {Area[]} - Palauttaa kaikki loydetyt pikseli alueet kuvasta
  */
-function detectAreas(bw_m, look_out_distance) {
-	
-	look_out_distance = parseInt(look_out_distance, 10);
-	if (look_out_distance < 1) look_out_distance = 1;
-	
+function detectAreas(bw_m, look_out_x, look_out_y) {
+		
 	// Piirto --> piirretaan mustavalko kuva:
 	drawPixelArray(bw_m);
 	
 	// Aputaulukko helpottamaan naapureiden x ja y koordinaattien laskentaa:
-	var neighbour_pointers = generateNeighbourPointers(look_out_distance);
+	var neighbour_pointers = generateNeighbourPointers(look_out_x, look_out_y);
 	
 	// processed matriisi merkkaa tietoa onko pikseli kasitelty vai ei:
 	var processed = new Array(bw_m.length);
@@ -132,44 +129,23 @@ function detectAreas(bw_m, look_out_distance) {
 	}
 	
 	
-	/**
-	 * Apufunktio naapureiden osoittimien generointiin annetulla etaisyydella
-	 */
-	function generateNeighbourPointers(look_out_distance) {
-		if (look_out_distance < 1) look_out_distance = 1;
+	function generateNeighbourPointers(x_reach, y_reach) {
+		if (x_reach < 1) x_reach = 1;
+		if (y_reach < 1) y_reach = 1;
 		
-		// Taulukko, johon generoidaan naapureiden osoittimet:
- 		var pointers = [];
+		var pointers = [];
 		
-		for (var reach = 1; reach <= look_out_distance; reach++) {
-			// alustetaan x ja y = vasen ylakulma
-			var x = -reach;
-			var y = reach;
-			
-			// vasen yla --> oikea yla
-			while(x <  reach) {
-				pointers[pointers.length] = [x, y];
-				x++;
-			}
-			// oikea yla --> oikea ala
-			while(y > -reach) {
-				pointers[pointers.length] = [x, y];
-				y--;
-			}
-			// oikea ala --> vasen ala
-			while (x > -reach) {
-				pointers[pointers.length] = [x, y];
-				x--;
-			}
-			// vasen ala --> vasen yla
-			while(y < reach) {
-				pointers[pointers.length] = [x, y];
-				y++;
+		for (var x = -x_reach; x <= x_reach; x++) {
+			for(var y = -y_reach; y <= y_reach; y++) {
+				if (x == 0 && y == 0) continue;
+				
+				pointers.push([x,y]);
 			}
 		}
 		
 		return pointers;
 	}
+
 	
 	function getPixelsFromArea(m, area_top_left, area_bottom_right) {
 		

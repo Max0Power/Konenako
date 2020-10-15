@@ -39,18 +39,23 @@ function analyzeUserInput() {
 	}
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
 	img.onload = function(e) {
-		
-		// grayscale muunnos:
-	    var g_m = readImageToGrayscaleMatrix(img);
-	    //var g_m = makeCharacter2("i", 64, "Arial");
-		
-		// mustavalko muunnos:
-		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
-		
-		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-		detectAreas(bw_m, document.getElementById("AreaSearchDst").value); // Ei kaytossa talla hetkella --> keskitytaan tesseractiin nyt
-	    
-	    //tesseract(img.src); // recognize text using Tesseract.js
+		if (document.getElementById("DetectionMethod").value == 1) {
+			// grayscale muunnos:
+			var g_m = readImageToGrayscaleMatrix(img);
+			
+			// mustavalko muunnos:
+			var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
+			
+			
+			// Yksinaisten pikslien filtterointi pois:
+			bw_m = removeNoise(bw_m, 1);
+			
+			// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
+			detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
+		}
+		else {
+			tesseract(img.src); // recognize text using Tesseract.js
+		}
 	}
 }
 

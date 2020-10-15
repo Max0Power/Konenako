@@ -269,3 +269,57 @@ function otsuThreshold(matrix) {
 
     return threshold;
 }
+
+
+function removeNoise(bw_m, max_empty_space) {
+	
+	if (max_empty_space < 1) max_empty_space = 1;
+	
+	var neighbour_pointers = generateNeighbourPointers(max_empty_space, max_empty_space);
+	
+	for (var x = 0; x < bw_m.length; x++) {
+		for(var y = 0; y < bw_m[0].length; y++) {
+			// Jos kasiteltava pikseli on valkoinen jatketaan seuraavan pikseliin
+			if (bw_m[x][y] === 255) continue;
+			
+			// Jos pikseli oli musta, katsotaan naapurit: poisto, jos mustaa pikselia ei loydy naapurista
+			var found = false;
+			for (var i = 0; i < neighbour_pointers.length; i++) {
+				var n_x = x + neighbour_pointers[i][0];
+				var n_y = y + neighbour_pointers[i][1];
+						
+				// Jos laskettu naapurin sijainti on matriisin ulkopuolella --> jatketaan seuraavaan naapuriin:
+				if (n_x < 0 || n_x >= bw_m.length || n_y < 0 || n_y >= bw_m[0].length) continue;
+				
+				// Jos naapuri oli musta --> lopetetaaan naapureiden lapikaynti
+				if (bw_m[n_x][n_y] == 0) {
+					found = true;
+					break;
+				}
+			}
+			// Jos mustaa naapuria ei loytynyt --> muutetaan kasiteltava pikseli valkoiseksi
+			if (found === false) {
+				bw_m[x][y] = 255;
+			}
+		}
+	}
+	
+	return bw_m;
+	
+	function generateNeighbourPointers(x_reach, y_reach) {
+		if (x_reach < 1) x_reach = 1;
+		if (y_reach < 1) y_reach = 1;
+		
+		var pointers = [];
+		
+		for (var x = -x_reach; x <= x_reach; x++) {
+			for(var y = -y_reach; y <= y_reach; y++) {
+				if (x == 0 && y == 0) continue;
+				
+				pointers.push([x,y]);
+			}
+		}
+		
+		return pointers;
+	}
+}

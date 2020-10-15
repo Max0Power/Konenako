@@ -52,8 +52,6 @@ function detectCharacterGroups(characters) {
 
 	    if (prev.bounds.bottomRight[1] < cur.bounds.topLeft[1]) {
 		groups[groups.length-1].linebreak = true;
-		groups.push(new CharacterGroup());
-		groups[groups.length-1].characters.push(cur);
 	    }
 	    
 	    if (diff < Math.sqrt(prevwidth * curwidth)) {
