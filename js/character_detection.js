@@ -228,23 +228,27 @@ function makeCharacter2(text, size, font) {
  * @param {Area[]} areas - taulukko Area -olioita, jotka loydettiin detectAreas -funktiolla (area_detection.js)
  */
 function detectCharacters(bw_m, areas) {
-	
 	console.log("Detect Characters started: IN DEVELOPMENT");
 	
 	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
 	
-    // Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
-        clearInterval(INTERVAL);
- 	INTERVAL = setInterval(process, 10);
 	
 	// Luodaan vaste data:
-    var comparison_characters = [];
-	for (var ascii_index = 33; ascii_index < 127; ascii_index++) {
-	    var c = String.fromCharCode(ascii_index);
-	    comparison_characters.push(c);
-	}
+	var basic_data_set = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+	'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+	'0','1','2','3','4','5','6','7','8','9'];
 	
+	var basic_comparison_data = new ComparisonData();
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Arial");
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Times New Roman");
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Helvetica");
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Verdana");
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Courier");
+	
+	// Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
+    clearInterval(INTERVAL);
+ 	INTERVAL = setInterval(process, 10);
 	
 	/**
 	 * Prosessi "INTERVALpi", joka tekee jokaiselle loydetylle alueelle tunnistuksen, joka maarittelee loytyiko merkki
@@ -255,11 +259,10 @@ function detectCharacters(bw_m, areas) {
 		var areas_processed_count = 0;
 		
 		while (areas_processed_count < MAX_AREA_PROCESS_COUNT && areas.length > 0) {
-			
 			// Lasketaan todennakoisyydet suhteessa vastedatan merkkeihin:
 			var probablity_array = [];
-			for (var i = 0; i < comparison_characters.length; i++) {
-				var probablity = compareCharacter(bw_m, areas[0], comparison_characters[i]);		
+			for (var i = 0; i < basic_comparison_data.getCharacterCount(); i++) {
+				var probablity = basic_comparison_data.compare(i, areas[0].pixels);
 				probablity_array.push(probablity);
 			}
 			
@@ -272,9 +275,11 @@ function detectCharacters(bw_m, areas) {
 			}
 		    
 			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
-			    characters.push(new Character(comparison_characters[best_probablity_index], areas[0]));
+			if (probablity_array[best_probablity_index] > 0.6) {
+			    characters.push(new Character(basic_comparison_data.getCharacter(best_probablity_index), areas[0]));
 			    drawArea(areas[0].topLeft, areas[0].bottomRight, "green");
-			    console.log(comparison_characters[best_probablity_index]);
+			    console.log(basic_comparison_data.getCharacter(best_probablity_index));
+			}
 			
 			// Poistetaan kasitelty Area -olio areas taulukosta:
 			areas.splice(0, 1);

@@ -48,9 +48,9 @@ function analyzeUserInput() {
 		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
 		
 		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-		//detectAreas(bw_m, document.getElementById("AreaSearchDst").value); // Ei kaytossa talla hetkella --> keskitytaan tesseractiin nyt
+		detectAreas(bw_m, document.getElementById("AreaSearchDst").value); // Ei kaytossa talla hetkella --> keskitytaan tesseractiin nyt
 	    
-	    tesseract(img.src); // recognize text using Tesseract.js
+	    //tesseract(img.src); // recognize text using Tesseract.js
 	}
 }
 

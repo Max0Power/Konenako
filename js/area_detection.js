@@ -92,7 +92,7 @@ function detectAreas(bw_m, look_out_distance) {
 				
 				// Jos open_set on tyhjentynyt --> alue on loytynyt ja luodaan Area -olio + piirretaan kanvasille loytynyt alue
 				if (open_set.length <= 0) {
-					areas.push(new Area(area_top_left, area_bottom_right));
+					areas.push(new Area(area_top_left, area_bottom_right, getPixelsFromArea(bw_m, area_top_left, area_bottom_right)));
 				    drawArea(area_top_left, area_bottom_right, "#FF0000");
 				}
 			}
@@ -170,6 +170,28 @@ function detectAreas(bw_m, look_out_distance) {
 		
 		return pointers;
 	}
+	
+	function getPixelsFromArea(m, area_top_left, area_bottom_right) {
+		
+		var width = Math.abs(area_bottom_right[0] - area_top_left[0] + 1);
+		var height = Math.abs(area_bottom_right[1] - area_top_left[1] + 1);
+		
+		var pixels = new Array(width);
+		
+		var p_x = 0;
+		var p_y = 0;
+		for (var x = area_top_left[0]; x <= area_bottom_right[0]; x++) {
+			pixels[p_x] =  new Array(height);
+			for (var y = area_top_left[1]; y <= area_bottom_right[1]; y++) {
+				pixels[p_x][p_y] = m[x][y];
+				p_y++;
+			}
+			p_y = 0;
+			p_x++;
+		}
+		
+		return pixels;
+	}
 }
 
 
@@ -184,9 +206,10 @@ class Area {
 	 * @param {Int[x, y]} topLeft - alueen vasemman ylanurkan x ja y koordinaatti
 	 * @param {Int[x, y]} bottomRight - alueen oikean alanurkan x ja y koordinaatti
 	 */
-	constructor(topLeft, bottomRight) {
+	constructor(topLeft, bottomRight, pixels) {
 		this.topLeft = topLeft;
 		this.bottomRight = bottomRight;
+		this.pixels = pixels;
 	}
 	
 	
