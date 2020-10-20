@@ -38,8 +38,12 @@ function analyzeUserInput() {
 		img.src = "images/Example2.png";
 	}
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
-	img.onload = function(e) {
-		if (document.getElementById("DetectionMethod").value == 1) {
+    img.onload = function(e) {
+
+	var e = document.getElementById("DetectionMethod");
+	var val = e.options[e.selectedIndex].text;
+	
+		if (val === "Custom") {
 			// grayscale muunnos:
 			var g_m = readImageToGrayscaleMatrix(img);
 			
@@ -53,7 +57,7 @@ function analyzeUserInput() {
 			// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
 			detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
 		}
-		else {
+	else if (val === "Tesseract") {
 			tesseract(img.src); // recognize text using Tesseract.js
 		}
 	}
@@ -125,7 +129,7 @@ async function tesseract(file) {
     }
     
     // run tesseract in a background thread
-    const worker = Tesseract.createWorker(options);
+    //const worker = Tesseract.createWorker(options);
     
     // show detailed information
     Tesseract.setLogging(false);
@@ -133,16 +137,18 @@ async function tesseract(file) {
 
     async function work() {
 	// inits worker thread
-	await worker.load();
-	await worker.loadLanguage('eng');
-	await worker.initialize('eng');
+	//await worker.load();
+	//await worker.loadLanguage('eng');
+	//await worker.initialize('eng');
 
 	// Optical Character Recognition (OCR)
-	let result = await worker.recognize(file);
+	//let result = await worker.recognize(file);
 
 	// stops worker thread
-	await worker.terminate();
+	//await worker.terminate();
 
+	let result = await Tesseract.recognize(file, 'eng', options);
+	
 	// draws lines, words and symbols
 	drawGroup(result.data.lines, 'black');
 	drawGroup(result.data.words, 'black');
