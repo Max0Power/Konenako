@@ -39,28 +39,19 @@ function analyzeUserInput() {
 	}
 	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
     img.onload = function(e) {
-
-	var e = document.getElementById("DetectionMethod");
-	var val = e.options[e.selectedIndex].text;
+	// grayscale muunnos:
+	var g_m = readImageToGrayscaleMatrix(img);
 	
-		if (val === "Custom") {
-			// grayscale muunnos:
-			var g_m = readImageToGrayscaleMatrix(img);
-			
-			// mustavalko muunnos:
-			var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
-			
-			
-			// Yksinaisten pikslien filtterointi pois:
-			bw_m = removeNoise(bw_m, 1);
-			
-			// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-			detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
-		}
-	else if (val === "Tesseract") {
-			tesseract(img.src); // recognize text using Tesseract.js
-		}
-	}
+	// mustavalko muunnos:
+	var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
+	
+	
+	// Yksinaisten pikslien filtterointi pois:
+	bw_m = removeNoise(bw_m, 1);
+	
+	// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
+	detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
+    }
 }
 
 
@@ -93,80 +84,4 @@ function updateProgressBar(percent, seconds) {
     // changes the text content of a progress bar
     const text = `${str_percent}, ${str_seconds}, ${str_estimate}`;
     document.getElementById("ProgressBar").textContent = text;
-}
-
-/**
- * Optical Character Recognition (OSD) using Tesseract.js
- * 
- * @param file {File} File object, img or canvas element, Blob object,
- *   path or URL to an image, base64 encoded image
- */
-async function tesseract(file) {
-    // start timer
-    const timer = Date.now();
-    
-    const options = {
-	//workerPath: 'lib/worker.min.js', <--  aiheuttaa errorin (ei pysty lataamaan (MIME ERROR))
-	//corePath: 'lib/tesseract-core.wasm.js', <-- aiheuttaa errorin, (ei pysty lataamaan (MIME ERROR))
-	//langPath: 'tessdata', <-- toimii, mutta ei ole valttamaton?
-	logger: progress
-    }
-
-    // Default paths to the Tesseract's dependencies
-    // worker: https://unpkg.com/browse/tesseract.js@2.1.3/dist/worker.min.js
-    // core:   https://unpkg.com/tesseract.js-core@2.1.0/tesseract-core.wasm.js
-    // lang:   https://tessdata.projectnaptha.com/4.0.0
-    
-    // TODO: langPath vaihtaminen epäonnistuu
-    // TODO: traineddataa ei taideta käyttää
-
-    function progress(e) {
-	if (e.status === "recognizing text") {
-	    // changes the text content of a progress bar
-	    let percent = parseInt(e.progress * 100, 10);
-	    updateProgressBar(percent, timer);
-	}
-    }
-    
-    // run tesseract in a background thread
-    //const worker = Tesseract.createWorker(options);
-    
-    // show detailed information
-    Tesseract.setLogging(false);
-    work();
-
-    async function work() {
-	// inits worker thread
-	//await worker.load();
-	//await worker.loadLanguage('eng');
-	//await worker.initialize('eng');
-
-	// Optical Character Recognition (OCR)
-	//let result = await worker.recognize(file);
-
-	// stops worker thread
-	//await worker.terminate();
-
-	let result = await Tesseract.recognize(file, 'eng', options);
-	
-	// draws lines, words and symbols
-	drawGroup(result.data.lines, 'black');
-	drawGroup(result.data.words, 'black');
-	drawGroup(result.data.symbols, 'black');
-
-	function drawGroup(group, color) {
-	    group.forEach(obj => {
-		// objects top left and bottom right corners
-		let topleft = [obj.bbox.x0, obj.bbox.y0];
-		let bottomright = [obj.bbox.x1, obj.bbox.y1];
-
-		// draws a square around the object
-		drawArea(topleft, bottomright, color); // drawing.js
-	    });
-	}
-
-	// changes the text content of a output textarea
-	const textarea = document.getElementById("TextOutput")
-	textarea.value = result.data.text;
-    }
 }

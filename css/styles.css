@@ -39,3 +39,7 @@ h1 {
 INPUT[type='file'] {
 	background-color: silver;
 }
+
+.args {
+    padding: 0.5em;
+}

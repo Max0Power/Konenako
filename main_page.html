@@ -9,8 +9,6 @@
 		<link rel="icon" href="data:;base64,iVBORw0KGgo=">
 		<!-- Styles: css/name.css -->
 		<link rel="stylesheet" href="css/styles.css" />
-		<!-- Libraries: lib/name.js -->
-		<script src="lib/tesseract.min.js"></script>
 		<!-- Scripts: js/name.js -->
 		<script src="js/character_comparison.js"></script>
 		<script src="js/character_group_detection.js"></script>
@@ -35,13 +33,7 @@
 				<label for="toggleimage">Show image: </label>
 				<input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
 				
-				<label for="detectionMethod">Detection method: </label>
-				<select id="DetectionMethod" name="detectionMethod">
-					<option value="0" selected="selected">Tesseract</option>
-					<option value="1">Custom</option>
-				</select>
-				
-				<div style="border:1px solid black;">
+				<div class="args" style="border:1px solid black;">
 				
 				<label for="invertColors">Invert colors: </label>
 				<input type="checkbox" id="InvertColors" name="invertColors" onchange=analyzeUserInput()></input>
