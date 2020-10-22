@@ -45,7 +45,51 @@ function detectLines(characters) {
 			if(cur.bounds.bottomRight[1] > lineHeights[lineHeights.length - 1][1]) lineHeights[lineHeights.length - 1][1] = cur.bounds.bottomRight[1];
 		}
 	}
-	
+
+    var e = document.getElementById("DetectionMethod");
+    var strUser = e.options[e.selectedIndex].text;
+
+    if (strUser === "Custom") {
+	lines.forEach(line => {
+	    // listataan arviot rivin fonttikoosta
+	    let fontsize_array = initFontSize(line);
+
+	    //let most_popular_font = mostPopularFont(line);
+
+	    // alkuarvausten keskihajonta
+	    let fontsize_diff = sd(fontsize_array);
+
+	    let fontsize_quess = quessFontSize(fontsize_array);
+
+	    line.forEach(c => {
+		let charheight = c.bounds.pixelHeight();
+
+		let charbest = 0; // probability
+		for(let i = 0; i < GLOBAALI.getCharacterCount(); i++) {
+		    // should be same as the lineratio
+		    let charratio = GLOBAALI.fontratio[i];
+		    // should be same as the lineheight
+		    let fontsize = fontSize(charheight, charratio);
+
+		    // as close as possible to zero
+		    let diff = Math.abs(fontsize_quess - fontsize);
+		    let cond = fontsize_diff / fontsize_quess;
+		    if (cond > 0 && diff <= fontsize_diff) {
+			//if (most_popular_font === GLOBAALI.getFont(i)) {
+			var percent = GLOBAALI.compare(i, c.bounds.pixels);
+			if (percent > charbest) {
+			    charbest = percent;
+			    c.confidence = percent;
+			    c.comparedataindex = i;
+			    c.value = GLOBAALI.getCharacter(i);
+			}
+			//}
+		    }
+		}
+	    });
+	});
+    }
+    
 	var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
 	
 	var txt = "";
@@ -64,5 +108,71 @@ function detectLines(characters) {
 		drawArea([lines[i][0].bounds.topLeft[0], lineHeights[i][0]], [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]], "Blue");
 	}
 	
-	document.getElementById("TextOutput").value = txt;
+    document.getElementById("TextOutput").value = txt;
+    updateProgressBar(100, SECONDS);
+}
+
+function initFontSize(line) {
+    // fonttikoon arviot laitetaan listaan
+    let fontsize_array = [];
+
+    // arvioi jokaisen kirjaimen fonttikokoa
+    line.forEach(c => {
+	let charheight = c.bounds.pixelHeight();
+	// rivinkorkeus arvioi fonttikokoa
+
+	// should be same as the lineratio
+	let charratio = GLOBAALI.fontratio[c.comparedataindex];
+
+	// should be same as the lineheight
+	let fontsize = fontSize(charheight, charratio);
+
+	// fonttikoon arvio listaan
+	fontsize_array.push(fontsize);
+    });
+
+    // arviot kirjainten fonttikoosta
+    return fontsize_array;
+}
+
+function quessFontSize(fontsize_array) {
+    // alkuarvaus fonttikoolle käytännössä sama kuin keskiarvo
+    let fontsize_quess = leastSquaresConstant(fontsize_array);
+    let previous_quess = -1; // eri kuin fontsize_quess!
+
+    while (previous_quess !== fontsize_quess) {
+	// jatketaan kunnes fonttikoko vakiintuu
+
+	previous_quess = fontsize_quess;
+	fontsize_array = filterArray(fontsize_array, fontsize_quess);
+	fontsize_quess = leastSquaresConstant(fontsize_array);
+    }
+
+    return fontsize_quess;
+}
+
+function mostPopularFont(line) {
+    var allfonts = [];
+    
+    var fonts = [];
+    line.forEach(c => {
+	if (fonts[c.font] === undefined) {
+	    fonts[c.font] = 0;
+	    allfonts.push(c.font)
+	} else {
+	    fonts[c.font] += 1;
+	}
+    });
+
+    var lkm = 0;
+    var most_popular = "";
+    allfonts.forEach(f => {
+	if (fonts[f] > lkm) {
+	    lkm = fonts[f];
+	    most_popular = f;
+	}
+    });
+
+    console.log(most_popular);
+    return most_popular;
 }

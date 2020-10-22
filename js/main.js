@@ -11,6 +11,7 @@
 
 var INTERVAL;
 
+var SECONDS;
 
 /**
  * Sivuston valmistuessa asetetaan ohjelman päätoiminnot eli kuvan analysointi
@@ -23,9 +24,14 @@ window.onload = function() {
 }
 
 function analyzeUserInput() {
-	
-	clearInterval(INTERVAL);
-	
+    clearInterval(INTERVAL);
+
+    SECONDS = Date.now();
+    updateProgressBar(0, SECONDS);
+
+    var textOutput = document.getElementById("TextOutput");
+    textOutput.value = "";
+    
 	// Luodaan kuva elementti ja asetetaan sourceksi käyttäjän ohjelmalle syöttämä kuva:
 	var img = new Image();
 	
@@ -84,4 +90,11 @@ function updateProgressBar(percent, seconds) {
     // changes the text content of a progress bar
     const text = `${str_percent}, ${str_seconds}, ${str_estimate}`;
     document.getElementById("ProgressBar").textContent = text;
+}
+
+function copyToClipboard() {
+    var textOutput = document.getElementById("TextOutput");
+    textOutput.select();
+    textOutput.setSelectionRange(0, 99999);
+    document.execCommand("copy");
 }

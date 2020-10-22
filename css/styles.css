@@ -3,7 +3,7 @@
  * @version 02.09.2020
  */
  
- html, body, h1, h2, h3, h4, h5, h6 {
+html, body, h1, h2, h3, h4, h5, h6 {
   font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
@@ -27,19 +27,77 @@ h1 {
 }
 
 #TextOutput {
-	width: 512px;
-	height: 512px;
+    width: 100%;
+    height: 512px;
 }
 
 #FileInput {
 	border: 1px;
 }
 
+button {
+    margin-left: 0.5em;
+}
 
 INPUT[type='file'] {
 	background-color: silver;
 }
 
+INPUT[type='number'] {
+    width: 40px;
+}
+
 .args {
     padding: 0.5em;
+}
+
+textarea {
+    font-size: 20pt;
+    border-color: gray;
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    /* Position the tooltip text */
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+
+    /* Fade in tooltip */
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+/* Tooltip arrow */
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
 }

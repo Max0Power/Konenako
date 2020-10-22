@@ -10,6 +10,10 @@ importScripts('kaavat.js');
 /**
  * @example
  *   var worker = new Worker('Scripts/worker.js');
+ *   worker.onmessage(function(e) {
+ *       var result = e.data;
+ *       console.log(result);
+ *   });
  *   worker.postMessage([matrix,reach]);
  */
 onmessage = function(event) {

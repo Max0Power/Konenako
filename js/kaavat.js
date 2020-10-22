@@ -180,8 +180,6 @@ function pcc(matrix, sample) {
     const arrM = reduceDimension(matrix);
     const arrS = reduceDimension(sample);
 
-    console.assert(arrM.length === arrS.length, "Error occured!");
-
     const meanM = average(arrM);
     const meanS = average(arrS);
 
@@ -214,8 +212,6 @@ function pcc(matrix, sample) {
 function sad(matrix, sample) {
     const arrM = reduceDimension(matrix);
     const arrS = reduceDimension(sample);
-
-    console.assert(arrM.length === arrS.length, "Error occured!");
     
     // largest possible difference
     const sadMax = arrM.length*255;  
@@ -228,4 +224,151 @@ function sad(matrix, sample) {
 
     // relative to maximum SAD
     return 1 - (sad/sadMax);
+}
+
+/**
+ * Ordinary least squares (OLS)
+ * Find line from linear function by least squares method.
+ * 
+ * @param values_x {number[]} input of linear function
+ * @param values_y {number[]} output of linear function
+ * @return {number[][]} [result_x,result_y] 
+ */
+function ols(values_x, values_y) {
+    if (values_y.length < 2) {
+	return values_y;
+    }
+
+    var x_sum = 0;
+    var y_sum = 0;
+    var xy_sum = 0;
+    var xx_sum = 0;
+    var count = 0;
+
+    var x = 0;
+    var y = 0;
+    var values_length = values_x.length;
+
+        /*
+     * Calculate the sum for each of the parts necessary.
+     */
+    for (let i = 0; i< values_length; i++) {
+	x = values_x[i];
+	y = values_y[i];
+	x_sum+= x;
+	y_sum+= y;
+	xx_sum += x*x;
+	xy_sum += x*y;
+	count++;
+    }
+
+        /*
+     * Calculate m and b for the line equation:
+     * y = x * m + b
+     */
+    var m = (count*xy_sum - x_sum*y_sum) / (count*xx_sum - x_sum*x_sum);
+    var b = (y_sum/count) - (m*x_sum)/count;
+
+        /*
+     * We then return the x and y data points according to our fit
+     */
+    var result_values_x = [];
+    var result_values_y = [];
+
+    for (let i = 0; i < values_length; i++) {
+	x = values_x[i];
+	y = x * m + b;
+	result_values_x.push(x);
+	result_values_y.push(y);
+    }
+
+    return result_values_y;
+}
+
+// TODO: siirrä char group detect
+function leastSquaresConstant(array) {
+    const tmp = range(array.length, 0);
+    const result = ols(tmp, array);
+    const diff = Math.abs(result[result.length-1] - result[0]);
+    return Math.round(result[0] + (diff/2));
+}
+
+/**
+ * Standard Deviation (SD)
+ * 
+ * @param array {number[]} array of values
+ * @return {number} standard deviation
+ */
+function sd(array) {
+    const mean = average(array);
+    const arr = array.map(x => Math.pow(x - mean, 2));
+    return Math.sqrt(average(arr));
+}
+
+/**
+ * @example
+ *   fontRatio(70,70) === 1
+ *   fontRatio(49,70) === 0.7
+ *   fontRatio(7,70) === 0.1
+ */
+function fontRatio(height, fontsize) {
+    // always less than or equal to 1
+    return height/fontsize;
+}
+
+/**
+ * @example
+ *   fontSize(70,1) === 70
+ *   fontSize(49,0.7) === 70
+ *   fontSize(7,0.1) === 70
+ */
+function fontSize(height, fontratio) {
+    // never less than height
+    return Math.round(height/fontratio);
+}
+
+/**
+ * Huom! Ei testattu
+ * 
+ * @example
+ *   fontWidth(36,36,0.5625) === 64
+ *   fontWidth(34,36,0.5625) === 60
+ */
+function fontWidth(width, height, fontratio) {
+    const ratio = fontRatio(width,height);
+    const fontsize = fontSize(height,fontratio);
+    return Math.round(ratio*fontsize);
+}
+
+function filterArray(array, threshold) {
+    let below_array = [];
+    let over_array = [];
+    array.forEach(val => {
+	if (val <= threshold) {
+	    below_array.push(val);
+	}
+	if (val >= threshold) {
+	    over_array.push(val);
+	}
+    });
+
+    let below_size = below_array.length;
+    let over_size = over_array.length;
+
+    if (below_array.length > 0 || over_array.length > 0) {
+	if (below_array.length > over_array.length) {
+	    return below_array;
+	}
+	return over_array;
+    } else {
+	throw new Error("Virhe");
+    }
+}
+
+// HUOM! ei käytössä
+function assert(cond) {
+    const ERROR = "Error occured";
+    if (!cond) {
+	throw new Error(ERROR);
+    }
 }

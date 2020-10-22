@@ -53,7 +53,7 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
 		// Muuttuja, jotka rajoittavat silmukoiden suorittamista:
 		const MAX_PROCESSED_COUNT = 100000; // <-- Luku, joka maaraa maksimin kuinka monta pikselia voidaan prosessoida yhden intervallin kierroksen aikana
 		var processed_counter = 0; // <-- merkkaa kuinka monta on kasitelty yhden intervallin kierroksen aikana
-		
+	    
 		// Jatketaan silmukkaa niin kauan, etta maksimi maara pikseleita on prosessoitu tai koko kuva on prosessoitu:
 		while(processed_counter < MAX_PROCESSED_COUNT && processed_count < processed.length * processed[0].length) {
 			
@@ -125,11 +125,13 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
 				}
 			}
 		}
+
+	    var progress = Math.round(processed_count / (processed.length * processed[0].length) * 45);
+	    updateProgressBar(progress, SECONDS);
 		
 		// Koko kuva on kasitelty: Jatketaan detectCharacters funktioon (character_detection.js)
 		if (processed_count >= processed.length * processed[0].length && open_set.length < 1) {
 			clearInterval(INTERVAL);
-			console.log("Areas detected: " + areas.length);
 			detectCharacters(bw_m, areas);
 		}
 	}

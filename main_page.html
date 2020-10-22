@@ -22,38 +22,79 @@
 	</head>
 	
 	<body>
-		<h1>IMAGE TO TEXT GENERATOR</h1>
+	  <h1>IMAGE TO TEXT GENERATOR</h1>
+	  <br>
 		<div id="FileDiv">
-		<hr>
-			<h2>Input:</h2>
 			
-				<!-- Image Input: -->
+		  <!-- Image Input: -->
+		  <div style="padding-bottom: 0.5em">
 				<input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
+			
 				<!-- Show Image -->
-				<label for="toggleimage">Show image: </label>
-				<input type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
+				<label for="toggleimage" style="margin-left: 0.5em;">Show image:</label>
+				<input style="margin-right: 1px;" type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
+
+				<button onclick=copyToClipboard()>Copy Output: </button>
+		  </div>
 				
-				<div class="args" style="border:1px solid black;">
+				<div class="args" style="border:1px solid gray;">
 				
-				<label for="invertColors">Invert colors: </label>
+				  <label for="invertColors">
+				    <div class="tooltip">Invert colors:
+				      <span class="tooltiptext">Text should always appear black. If this is not the case, you should click this box.</span>
+				    </div>
+				  </label>
+				  
+				  
 				<input type="checkbox" id="InvertColors" name="invertColors" onchange=analyzeUserInput()></input>
-				<label for="areaSearchDst">Area search distance: </label>
+
+				<label for="areaSearchDst">
+				  <div class="tooltip">Area search distance:
+				    <span class="tooltiptext">This variable is used to connect black areas that should be connected vertically.</span>
+				  </div>
+				</label>
 				<input type="number" id="AreaSearchDst" name="areaSearchDst" value="1" min="1" max="32" onchange=analyzeUserInput()></input>
-				<label for="emptySpaceRatio">Empty space ratio: </label>
-				<input type="number" id="EmptySpaceRatio" name="emptySpaceRatio" value="0.2" min="0" max="1" step="0.01"></input>
-				<label for="areaFilttering">Area Filttering: </label>
-				<input type="number" id="AreaFilttering" name="areaFilttering" value="5" min="0" max="100" step="1"></input>
+
+				
+				<label for="emptySpaceRatio">
+				  <div class="tooltip">Empty space ratio:
+				    <span class="tooltiptext">Empty space between characters is calculated based on line height.</span>
+				  </div>
+				</label>
+				<input type="number" id="EmptySpaceRatio" name="emptySpaceRatio" value="0.2" min="0" max="1" step="0.01" onchange=analyzeUserInput()></input>
+				<label>
+				  <div class="tooltip">Area Filttering: 
+				    <span class="tooltiptext">If the found area is smaller than the defined size on the X or Y axis, it is ignored.</span>
+				  </div>
+				  </label>
+				<label for="areaFiltteringX">x</label>
+				<input type="number" id="AreaFiltteringX" name="areaFiltteringX" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
+				
+				<label for="areaFiltteringY">y</label>
+				<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
+				<label for="detectionMethod">
+				  <div class="tooltip">Detection Method:
+				    <span class="tooltiptext">The custom option additionally takes the line height into account.</span>
+				  </div>
+				</label>
+				
+				<select id="DetectionMethod" name="detectionMethod" onchange=analyzeUserInput()>
+				  <option value="1" selected="selected">Default</option>
+				  <option value="2">Custom</option>
+				</select>
+				
 				</div>
 				
 				<!-- Progress Bar -->
-				<div>
-					<span id="ProgressBar"></span>
+				<div class="args" style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray;">
+				  <span id="ProgressBar"></span>
 				</div>
 				<!-- Image -->
-				<canvas id="Drawing"></canvas>
+				<div style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray;">
+				  <canvas id="Drawing"></canvas>
+				  </div>
 				<br>
-		<hr>
-			<h2>Output:</h2>
+		
 			<!-- Output Area -->
 			<textarea id="TextOutput"></textarea>
 		</div>
