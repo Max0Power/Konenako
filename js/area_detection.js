@@ -7,6 +7,7 @@
  
 "use strict";
 
+
 /**
  * Etsii Pikselitaulukosta kaikki mustien pikselien alueet, muodostaa Area -oliot taulukkoon --> sen jalkeen jatketaan character_detection.js:aan.
  @param {Int[][]} bw_m - Mustavalko kuvan matriisi
@@ -89,8 +90,13 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
 				
 				// Jos open_set on tyhjentynyt --> alue on loytynyt ja luodaan Area -olio + piirretaan kanvasille loytynyt alue
 				if (open_set.length <= 0) {
+					// Jos area on hyvaksyttavan kokoinen: lisataan se area taulukkoon
+					/*if ( (area_bottom_right[0] - area_top_left[0]) + 1 >= 5 || (area_bottom_right[1] - area_top_left[1]) + 1 >= 5) {
+						areas.push(new Area(area_top_left, area_bottom_right, getPixelsFromArea(bw_m, area_top_left, area_bottom_right)));
+						drawArea(area_top_left, area_bottom_right, "#FF0000");
+					}*/
 					areas.push(new Area(area_top_left, area_bottom_right, getPixelsFromArea(bw_m, area_top_left, area_bottom_right)));
-				    drawArea(area_top_left, area_bottom_right, "#FF0000");
+					drawArea(area_top_left, area_bottom_right, "#FF0000");
 				}
 			}
 			// Jos open setissa ei ole pikseleita --> etsitaan seuraava musta pikseli

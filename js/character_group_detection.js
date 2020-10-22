@@ -21,90 +21,48 @@ function compare(first, second) {
     return 0;
 }
 
-/**
- * Kay lapi loydetyt character -oliot taulukosta ja muodostaa ryhmat.
- * Jatkaa suorituksen jalkeen tulostukseen, jossa tulostetaan tunnistetut merkit.
- * @param {Character[]} characters - Taulukko Character -olioita
- */
-function detectCharacterGroups(characters) {
-    characters = characters.sort(compare);
-    
-    var groups = [];
-    if (characters.length > 0) {
-	groups.push(new CharacterGroup());
-	groups[groups.length-1].characters.push(characters[0]);
-    }
-    
-    for (var i = 1; i < characters.length; i++) {
+
+function detectLines(characters) {
+	characters = characters.sort(compare);
 	
-	var prev = characters[i-1];
-	var cur = characters[i];
-
-	if (groups[groups.length-1].characters.length === 0) {
-	    groups[groups.length-1].characters.push(cur);
-	} else {
-	    var left = prev.bounds.bottomRight[0];
-	    var right = cur.bounds.topLeft[0];
-
-	    var diff = Math.abs(right - left);
-	    var prevwidth = prev.bounds.pixelWidth();
-	    var curwidth = cur.bounds.pixelWidth();
-
-	    if (prev.bounds.bottomRight[1] < cur.bounds.topLeft[1]) {
-		groups[groups.length-1].linebreak = true;
-	    }
-	    
-	    if (diff < Math.sqrt(prevwidth * curwidth)) {
-		groups[groups.length-1].characters.push(cur);
-	    } else {
-		groups.push(new CharacterGroup());
-		groups[groups.length-1].characters.push(cur);
-	    }
+	var lines = [];
+	var lineHeights = [];
+	if(characters.length > 0) {
+		lines.push([characters[0]]);
+		lineHeights.push([characters[0].bounds.topLeft[1], characters[0].bounds.bottomRight[1]]);
+		
 	}
-
-    }
-
-    var text = "";
-    for (var i = 0; i < groups.length; i++) {
-	text += groups[i].toString();
-	if (groups[i].linebreak) text += "\n";
-	else if (i < groups.length-1) text += " ";
-    }
-
-    document.getElementById("TextOutput").value = text;
-    drawGroups(groups);
-}
-
-function drawGroups(groups) {
-    groups.forEach(group => {
-	var tmp = group.characters;
-
-	var topleft = tmp[0].bounds.topLeft;
-	var bottomright = tmp[tmp.length-1].bounds.bottomRight;
-	
-	drawArea(topleft,bottomright,"blue");
-    });
-}
-
-/**
- * CharacterGroup -olion muodostaja, joka sisaltaa yksittaiseen merkkijonoon kuuluvat Character -oliot.
- */
-class CharacterGroup {
-	
-	/**
-	 * CharacterGroup -olion muodostaja, joka sisaltaa taulukossa ryhmaan kuuluvat Character -oliot
-	 * @param {Character[]} characters - ryhmaan kuuluvat Character -oliot taulukossa.
-	 */
-	constructor() {
-		this.characters = [];
-	    this.linebreak = false;
-	}
-	
-	toString() {
-		var txt = "";
-		for (var i = 0; i < this.characters.length; i++) {
-			txt = txt + this.characters[i].value;
+	for(var i = 1; i < characters.length; i++) {
+		var prev = characters[i-1];
+		var cur = characters[i];
+		if (prev.bounds.bottomRight[1] < cur.bounds.topLeft[1]) {
+			lines.push([cur]);
+			lineHeights.push([cur.bounds.topLeft[1], cur.bounds.bottomRight[1]]);
+	    }
+		else {
+			lines[lines.length - 1].push(cur);
+			if(cur.bounds.topLeft[1] < lineHeights[lineHeights.length - 1][0]) lineHeights[lineHeights.length - 1][0] = cur.bounds.topLeft[1];
+			if(cur.bounds.bottomRight[1] > lineHeights[lineHeights.length - 1][1]) lineHeights[lineHeights.length - 1][1] = cur.bounds.bottomRight[1];
 		}
-		return txt;
 	}
+	
+	var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
+	
+	var txt = "";
+	for(var i = 0; i < lines.length; i++) {
+		var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
+		for(var j = 0; j < lines[i].length; j++) {
+			if(j - 1 >= 0) {
+				var gap = (lines[i][j].bounds.topLeft[0] - lines[i][j-1].bounds.bottomRight[0]) + 1;
+				if(gap > space_width) txt += " ";
+			}
+			txt += lines[i][j].value;
+		}
+		
+		if(i + 1 < lines.length) txt += "\n";
+		
+		drawArea([lines[i][0].bounds.topLeft[0], lineHeights[i][0]], [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]], "Blue");
+	}
+	
+	document.getElementById("TextOutput").value = txt;
 }
