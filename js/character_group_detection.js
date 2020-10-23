@@ -49,7 +49,7 @@ function detectLines(characters) {
     var e = document.getElementById("DetectionMethod");
     var strUser = e.options[e.selectedIndex].text;
 
-    if (strUser === "Custom") {
+    if (strUser === "Error Correction") {
 	lines.forEach(line => {
 	    // listataan arviot rivin fonttikoosta
 	    let fontsize_array = initFontSize(line);

@@ -30,7 +30,7 @@ function detectCharacters(bw_m, areas) {
 
     var e = document.getElementById("DetectionMethod");
     var strUser = e.options[e.selectedIndex].text;
-    if (strUser === "Custom") {
+    if (strUser === "Error Correction") {
 	basic_data_set.push('.');
 	basic_data_set.push(',');
     }

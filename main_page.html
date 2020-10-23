@@ -34,7 +34,7 @@
 				<label for="toggleimage" style="margin-left: 0.5em;">Show image:</label>
 				<input style="margin-right: 1px;" type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
 
-				<button onclick=copyToClipboard()>Copy Output: </button>
+				<button onclick=copyToClipboard()>Copy Text</button>
 		  </div>
 				
 				<div class="args" style="border:1px solid gray;">
@@ -74,13 +74,13 @@
 				<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
 				<label for="detectionMethod">
 				  <div class="tooltip">Detection Method:
-				    <span class="tooltiptext">The custom option additionally takes the line height into account.</span>
+				    <span class="tooltiptext">Error correction also takes the line height into account.</span>
 				  </div>
 				</label>
 				
 				<select id="DetectionMethod" name="detectionMethod" onchange=analyzeUserInput()>
 				  <option value="1" selected="selected">Default</option>
-				  <option value="2">Custom</option>
+				  <option value="2">Error Correction</option>
 				</select>
 				
 				</div>
