@@ -77,7 +77,7 @@ function detectCharacters(bw_m, areas) {
 			var c = basic_comparison_data.getCharacter(best_probablity_index);
 			var f = GLOBAALI.getFont(best_probablity_index);
 			    characters.push(new Character(c, f, areas[0]));
-			    drawArea(areas[0].topLeft, areas[0].bottomRight, "green");
+			    drawArea(areas[0].topLeft, areas[0].bottomRight, "#00FF00");
 			    characters[characters.length-1].confidence = probablity_array[best_probablity_index];
 			    characters[characters.length-1].comparedataindex = best_probablity_index;
 			}

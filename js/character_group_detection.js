@@ -105,7 +105,7 @@ function detectLines(characters) {
 		
 		if(i + 1 < lines.length) txt += "\n";
 		
-		drawArea([lines[i][0].bounds.topLeft[0], lineHeights[i][0]], [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]], "Blue");
+		drawArea([lines[i][0].bounds.topLeft[0], lineHeights[i][0]], [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]], "#0000FF");
 	}
 	
     document.getElementById("TextOutput").value = txt;
