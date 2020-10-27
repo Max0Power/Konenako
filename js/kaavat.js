@@ -372,3 +372,25 @@ function assert(cond) {
 	throw new Error(ERROR);
     }
 }
+
+
+/**
+ * Generoi aputaulukon, joka sisaltaa viereisten naapureiden osoittimet annetulla x ja y etaisyydella
+ * Kaytetaan: area_detection.js seka pixel_filttering.js
+ */
+function generateNeighbourPointers(x_reach, y_reach) {
+	if (x_reach < 1) x_reach = 1;
+	if (y_reach < 1) y_reach = 1;
+	
+	var pointers = [];
+	
+	for (var x = -x_reach; x <= x_reach; x++) {
+		for(var y = -y_reach; y <= y_reach; y++) {
+			if (x == 0 && y == 0) continue;
+			
+			pointers.push([x,y]);
+		}
+	}
+	
+	return pointers;
+}

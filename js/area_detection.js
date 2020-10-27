@@ -11,6 +11,8 @@
 /**
  * Etsii Pikselitaulukosta kaikki mustien pikselien alueet, muodostaa Area -oliot taulukkoon --> sen jalkeen jatketaan character_detection.js:aan.
  @param {Int[][]} bw_m - Mustavalko kuvan matriisi
+ @param {Int} look_out_x - mustien pikselien horisontaalinen etsintaetaisyys
+ @param {Int} look_out_y - mustien pikselien vertikaalinen etsintaetaisyys
  @return {Area[]} - Palauttaa kaikki loydetyt pikseli alueet kuvasta
  */
 function detectAreas(bw_m, look_out_x, look_out_y) {
@@ -41,7 +43,7 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
 	
 	var areas = [];
 
-        clearInterval(INTERVAL);
+    clearInterval(INTERVAL);
 	INTERVAL = setInterval(process, 20);
 	
 	
@@ -135,26 +137,11 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
 			detectCharacters(bw_m, areas);
 		}
 	}
-	
-	
-	function generateNeighbourPointers(x_reach, y_reach) {
-		if (x_reach < 1) x_reach = 1;
-		if (y_reach < 1) y_reach = 1;
-		
-		var pointers = [];
-		
-		for (var x = -x_reach; x <= x_reach; x++) {
-			for(var y = -y_reach; y <= y_reach; y++) {
-				if (x == 0 && y == 0) continue;
-				
-				pointers.push([x,y]);
-			}
-		}
-		
-		return pointers;
-	}
 
 	
+	/**
+	 * Palauttaa matriisissa olevat pikselit annetulta alueelta
+	 */
 	function getPixelsFromArea(m, area_top_left, area_bottom_right) {
 		
 		var width = Math.abs(area_bottom_right[0] - area_top_left[0] + 1);
@@ -183,7 +170,6 @@ function detectAreas(bw_m, look_out_x, look_out_y) {
  * Luokka alueelle, joka pitaa sisallaan loydetyn mustien pikselien alueen
  */
 class Area {
-	
 	
 	/**
 	 * Area -olion muodostaja

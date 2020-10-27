@@ -7,8 +7,16 @@
 
 const MAX_EPS_TO_RATIO = 0.2;
 
+
+/**
+ * Luokka vastedatalle, jonne syotetaan merkkien vertailussa vasteena kaytettavat merkit.
+ * Luokka sisaltaa metodin merkkien vertailuun
+ */
 class ComparisonData {
 	
+	/**
+	 * CompparisonData -olion muodostaja
+	 */
 	constructor() {
 		this.comparison_data = [];
 		this.comparison_characters = [];
@@ -17,12 +25,20 @@ class ComparisonData {
 	    
  	}
 	
+	
+	/**
+	 * Lisaa merkiston (taulukkossa olevat merkit) vertailussa kaytettavaan datasettiin
+	 */
 	addCharacterDataSet(data, size, font) {
 		for (var i = 0; i < data.length; i++) {
 			this.addCharacter(data[i], size, font);
 		}
 	}
 	
+	
+	/**
+	 * Lisaa yksittaisen merkin vertailussa kaytettavaan datasettiin
+	 */
 	addCharacter(c, size, font) {
 		// create a canvas for sample character
 		const canvas = document.createElement("CANVAS");
@@ -99,6 +115,10 @@ class ComparisonData {
 		}
 	}
 	
+	
+	/**
+	 * Etsii loytyyko parametrina annettu merkki olion vastedatasta ja tekee vertailun sen loytyessa
+	 */
 	compareToCharacter(c, m_to_compare_with) {
 		for (var i = 0; i < this.comparison_characters.length; i++) {
 			if (this.comparison_characters[i] === c) {
@@ -109,6 +129,9 @@ class ComparisonData {
 	}
 	
 	
+	/**
+	 * Tekee vertailun indeksissa olevaan merkkiin nahden
+	 */
 	compare(index, m_to_compare_with) {
 		if (index < 0 || index > this.comparison_data.length - 1) return 0;
 		
@@ -125,18 +148,30 @@ class ComparisonData {
 		return sad(m_to_compare_with, sample_scaled);
 	}
 	
+	
+	/**
+	 * Palauttaa indeksissa olevan merkin
+	 */
 	getCharacter(index) {
 		if (index < 0 || index > this.comparison_characters.length - 1) return "INDEX WAS INVALID";
 		
 		return this.comparison_characters[index];
 	}
 	
+	
+	/**
+	 * Palauttaa indeksissa olevan fontin
+	 */
 	getFont(index) {
 		if (index < 0 || index > this.comparison_characters.length - 1) return "INDEX WAS INVALID";
 		
 		return this.comparison_fonts[index];
 	}
 	
+	
+	/**
+	 * Palauttaa vasteessa olevan merkkien maaran
+	 */
 	getCharacterCount() {
 		return this.comparison_characters.length;
 	}

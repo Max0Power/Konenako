@@ -23,6 +23,10 @@ window.onload = function() {
 	analyzeUserInput();
 }
 
+
+/**
+ * Hakee kuvan File Inputista ja suorittaa tekstin tunnistuksen
+ */
 function analyzeUserInput() {
     clearInterval(INTERVAL);
 
@@ -61,6 +65,9 @@ function analyzeUserInput() {
 }
 
 
+/**
+ * Piilottaa/esittaa kayttajan syottaman kuvan
+ */
 function toggleImage() {
 	var toggle = document.getElementById("ToggleImage");
 	if (toggle.checked) {
@@ -92,6 +99,10 @@ function updateProgressBar(percent, seconds) {
     document.getElementById("ProgressBar").textContent = text;
 }
 
+
+/**
+ * Kopioi TextOutput -laatikon tekstin 
+ */
 function copyToClipboard() {
     var textOutput = document.getElementById("TextOutput");
     textOutput.select();

@@ -94,7 +94,7 @@ function detectCharacters(bw_m, areas) {
 		// Kaikki alueet kasitelty: jatketaan suoritusta detectCharacterGroups funktioon (character_group_detection.js)
 		if (areas.length < 1) {
 			clearInterval(INTERVAL);
-			detectLines(characters);
+			formatText(characters);
 		}
 	}
 }

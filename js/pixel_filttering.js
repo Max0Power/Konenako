@@ -5,6 +5,10 @@
 
 "use strict";
 
+
+/**
+ * Muuntaa harmaasavykuvan mustavalkokuvaksi. Ottaa myos parametrina inver_colors booleanin, jos on tarvetta vaihtaa varit toisinpain
+ */
 function grayscaleToBlackAndWhite(g_m, invert_colors) {
 	var pixelCount = g_m.length * g_m[0].length;
 	
@@ -54,6 +58,7 @@ function grayscaleToBlackAndWhite(g_m, invert_colors) {
 	
 	return bw_m;
 }	
+
 
 /**
  * Lukee ladatun kuvan datan grayscale-matriisiksi
@@ -156,21 +161,6 @@ function makeHistogram(matrix) {
     return histogram;
 }
 
-/**
- * ei käytössä
- */
-function histogramThreshold(histogram, total) {
-    var sum = 0;
-    for (var i = 0; i < histogram.length; i++) {
-	sum += histogram[i];
-	if (sum >= total / 2) {
-	    return i;
-	}
-    }
-
-    // virheelliset parametrit
-    return histogram.length - 1;
-}
 
 /**
  * Balanced Histogram Thresholding Method (BHT)
@@ -271,6 +261,11 @@ function otsuThreshold(matrix) {
 }
 
 
+
+/**
+ * Poistaa mustavalkokuvasta yksinaisia mustia pikseleita. Pikseli poistetaan aina, jos annetulta etaisyydelta (max_empty_space)
+ * ei loydy yhtaan mustaa pikselia
+ */
 function removeNoise(bw_m, max_empty_space) {
 	
 	if (max_empty_space < 1) max_empty_space = 1;
@@ -305,21 +300,4 @@ function removeNoise(bw_m, max_empty_space) {
 	}
 	
 	return bw_m;
-	
-	function generateNeighbourPointers(x_reach, y_reach) {
-		if (x_reach < 1) x_reach = 1;
-		if (y_reach < 1) y_reach = 1;
-		
-		var pointers = [];
-		
-		for (var x = -x_reach; x <= x_reach; x++) {
-			for(var y = -y_reach; y <= y_reach; y++) {
-				if (x == 0 && y == 0) continue;
-				
-				pointers.push([x,y]);
-			}
-		}
-		
-		return pointers;
-	}
 }

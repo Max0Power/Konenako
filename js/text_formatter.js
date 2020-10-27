@@ -6,25 +6,15 @@
 "use strict";
 
 
-function compare(first, second) {
-    var [fstTLX,fstTLY] = first.bounds.topLeft;
-    var [sndTLX,sndTLY] = second.bounds.topLeft;
-
-    var [fstBRX,fstBRY] = first.bounds.bottomRight;
-    var [sndBRX,sndBRY] = second.bounds.bottomRight;
-
-    if (fstBRY < sndTLY) return -1;
-    if (sndBRY < fstTLY) return 1;
-    if (fstTLX < sndTLX) return -1;
-    if (sndTLX < fstTLX) return 1;
-    
-    return 0;
-}
-
-
-function detectLines(characters) {
+/**
+ * Ottaa parametrina tunnistetut merkit ja suorittaa rivityksen, valityksen seka tulostuksen
+ */
+function formatText(characters) {
+	
+	// teksti rivitetaan jarjestamalla kirjaimet:
 	characters = characters.sort(compare);
 	
+	// rivitys ja rivien korkeuksien laskeminen:
 	var lines = [];
 	var lineHeights = [];
 	if(characters.length > 0) {
@@ -46,6 +36,7 @@ function detectLines(characters) {
 		}
 	}
 
+	// Extra tarkistus:
     var e = document.getElementById("DetectionMethod");
     var strUser = e.options[e.selectedIndex].text;
 
@@ -74,8 +65,7 @@ function detectLines(characters) {
 		    // as close as possible to zero
 		    let diff = Math.abs(fontsize_quess - fontsize);
 		    let cond = fontsize_diff / fontsize_quess;
-		    if (cond > 0 && diff <= fontsize_diff) {
-			//if (most_popular_font === GLOBAALI.getFont(i)) {
+		    if (diff <= fontsize_diff) {
 			var percent = GLOBAALI.compare(i, c.bounds.pixels);
 			if (percent > charbest) {
 			    charbest = percent;
@@ -83,15 +73,14 @@ function detectLines(characters) {
 			    c.comparedataindex = i;
 			    c.value = GLOBAALI.getCharacter(i);
 			}
-			//}
 		    }
 		}
 	    });
 	});
     }
     
+	// Tekstin tulostaminen:
 	var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
-	
 	var txt = "";
 	for(var i = 0; i < lines.length; i++) {
 		var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
@@ -110,8 +99,31 @@ function detectLines(characters) {
 	
     document.getElementById("TextOutput").value = txt;
     updateProgressBar(100, SECONDS);
+	
+	
+	/**
+	 * teksti rivitetaan jarjestamalla kirjaimet Y:n ja X:n perusteella
+	 */
+	function compare(first, second) {
+		var [fstTLX,fstTLY] = first.bounds.topLeft;
+		var [sndTLX,sndTLY] = second.bounds.topLeft;
+
+		var [fstBRX,fstBRY] = first.bounds.bottomRight;
+		var [sndBRX,sndBRY] = second.bounds.bottomRight;
+
+		if (fstBRY < sndTLY) return -1;
+		if (sndBRY < fstTLY) return 1;
+		if (fstTLX < sndTLX) return -1;
+		if (sndTLX < fstTLX) return 1;
+    
+		return 0;
+	}
 }
 
+
+/**
+ * tekee arviot fonttikoosta
+ */
 function initFontSize(line) {
     // fonttikoon arviot laitetaan listaan
     let fontsize_array = [];
@@ -135,6 +147,10 @@ function initFontSize(line) {
     return fontsize_array;
 }
 
+
+/**
+ * Arvaa fonttikoon =)
+ */
 function quessFontSize(fontsize_array) {
     // alkuarvaus fonttikoolle käytännössä sama kuin keskiarvo
     let fontsize_quess = leastSquaresConstant(fontsize_array);
@@ -151,6 +167,10 @@ function quessFontSize(fontsize_array) {
     return fontsize_quess;
 }
 
+
+/**
+ * Rivin eniten esiintyvaa fontti tunnistuksen perusteella (ei kayteta talle hetkella --> ei parantanut tunnistusta)
+ */
 function mostPopularFont(line) {
     var allfonts = [];
     
@@ -173,6 +193,5 @@ function mostPopularFont(line) {
 	}
     });
 
-    console.log(most_popular);
     return most_popular;
 }
