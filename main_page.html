@@ -1,6 +1,7 @@
 <!--
  * @author Jussi Parviainen ja Harri Linna
  * @version 02.09.2020
+ * @version 29.10.2020, Error correction merged
  -->
 <!DOCTYPE html>
 <html>
@@ -71,18 +72,7 @@
 				<input type="number" id="AreaFiltteringX" name="areaFiltteringX" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
 				
 				<label for="areaFiltteringY">y</label>
-				<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
-				<label for="detectionMethod">
-				  <div class="tooltip">Detection Method:
-				    <span class="tooltiptext">Error correction also takes the line height into account.</span>
-				  </div>
-				</label>
-				
-				<select id="DetectionMethod" name="detectionMethod" onchange=analyzeUserInput()>
-				  <option value="1" selected="selected">Default</option>
-				  <option value="2">Error Correction</option>
-				</select>
-				
+				<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>				
 				</div>
 				
 				<!-- Progress Bar -->

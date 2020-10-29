@@ -1,6 +1,7 @@
 /**
  * @author Jussi Parviainen ja Harri Linna
  * @version 03.09.2020
+ * @version 29.10.2020, Error correction merged
  */
 
 "use strict";
@@ -24,16 +25,9 @@ function detectCharacters(bw_m, areas) {
 	
 	// Luodaan vaste data:
 	var basic_data_set = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-	'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
+			      'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
 			      '0','1','2','3','4','5','6','7','8','9',
 			      '-', '+', '/', '\\', '!'];
-
-    var e = document.getElementById("DetectionMethod");
-    var strUser = e.options[e.selectedIndex].text;
-    if (strUser === "Error Correction") {
-	basic_data_set.push('.');
-	basic_data_set.push(',');
-    }
 	
 	var basic_comparison_data = new ComparisonData();
 	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Arial");
@@ -55,6 +49,7 @@ function detectCharacters(bw_m, areas) {
 	    
 		const MAX_AREA_PROCESS_COUNT = 10;
 		var areas_processed_count = 0;
+		const charcolor = "#00FF00"; // green
 	    
 		while (areas_processed_count < MAX_AREA_PROCESS_COUNT && areas.length > 0) {
 			// Lasketaan todennakoisyydet suhteessa vastedatan merkkeihin:
@@ -77,7 +72,7 @@ function detectCharacters(bw_m, areas) {
 			var c = basic_comparison_data.getCharacter(best_probablity_index);
 			var f = GLOBAALI.getFont(best_probablity_index);
 			    characters.push(new Character(c, f, areas[0]));
-			    drawArea(areas[0].topLeft, areas[0].bottomRight, "#00FF00");
+			    drawArea(areas[0].topLeft, areas[0].bottomRight, charcolor);
 			    characters[characters.length-1].confidence = probablity_array[best_probablity_index];
 			    characters[characters.length-1].comparedataindex = best_probablity_index;
 			}

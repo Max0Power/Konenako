@@ -1,10 +1,10 @@
 /**
  * @author Jussi Parviainen ja Harri Linna
  * @version 03.09.2020
+ * @version 29.10.2020, Error correction merged
  */
 
 "use strict";
-
 
 /**
  * Ottaa parametrina tunnistetut merkit ja suorittaa rivityksen, valityksen seka tulostuksen
@@ -35,71 +35,103 @@ function formatText(characters) {
 			if(cur.bounds.bottomRight[1] > lineHeights[lineHeights.length - 1][1]) lineHeights[lineHeights.length - 1][1] = cur.bounds.bottomRight[1];
 		}
 	}
+    
+    // Tekstin tulostaminen:
+    var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
+    let default_text = convertLinesToString(lines, empty_space_ratio);
+    
+    function convertLinesToString(lines, empty_space_ratio) {
+	var txt = "";
+	for (var i = 0; i < lines.length; i++) {
+	    var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
+	    for (var j = 0; j < lines[i].length; j++) {
+		if (j - 1 >= 0) {
+		    var gap = (lines[i][j].bounds.topLeft[0] - lines[i][j-1].bounds.bottomRight[0]) + 1;
+		    if(gap > space_width) txt += " ";
+		}
+		txt += lines[i][j].value;
+	    }
+	    
+	    if (i + 1 < lines.length) txt += "\n";
+	}
+	return txt;
+    }
 
-	// Extra tarkistus:
-    var e = document.getElementById("DetectionMethod");
-    var strUser = e.options[e.selectedIndex].text;
+    // Rivien piirtäminen:
+    drawLines(lines);
 
-    if (strUser === "Error Correction") {
-	lines.forEach(line => {
-	    // listataan arviot rivin fonttikoosta
-	    let fontsize_array = initFontSize(line);
+    function drawLines(lines) {
+	const linecolor = "#0000FF"; // blue
+	for (var i = 0; i < lines.length; i++) {
+	    let topleft = [lines[i][0].bounds.topLeft[0], lineHeights[i][0]];
+	    let bottomright = [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]];
+	    drawArea(topleft, bottomright, linecolor);
+	}
+    }
 
-	    //let most_popular_font = mostPopularFont(line);
+    // Virheenkorjaus suuret/pienet kirjaimet:
+    lines.forEach(line => {
+	// listataan arviot rivin fonttikoosta
+	let fontsize_array = initFontSize(line);
 
-	    // alkuarvausten keskihajonta
-	    let fontsize_diff = sd(fontsize_array);
+	//let most_popular_font = mostPopularFont(line);
 
-	    let fontsize_quess = quessFontSize(fontsize_array);
+	// alkuarvausten keskihajonta
+	let fontsize_diff = sd(fontsize_array);
 
-	    line.forEach(c => {
-		let charheight = c.bounds.pixelHeight();
+	// arvaa rivin kirjainten fonttikoon
+	let fontsize_quess = quessFontSize(fontsize_array);
 
-		let charbest = 0; // probability
-		for(let i = 0; i < GLOBAALI.getCharacterCount(); i++) {
-		    // should be same as the lineratio
-		    let charratio = GLOBAALI.fontratio[i];
-		    // should be same as the lineheight
-		    let fontsize = fontSize(charheight, charratio);
+	line.forEach(c => {
+	    // kirjaimen todellinen korkeus
+	    let charheight = c.bounds.pixelHeight();
 
-		    // as close as possible to zero
-		    let diff = Math.abs(fontsize_quess - fontsize);
-		    let cond = fontsize_diff / fontsize_quess;
-		    if (diff <= fontsize_diff) {
-			var percent = GLOBAALI.compare(i, c.bounds.pixels);
-			if (percent > charbest) {
-			    charbest = percent;
-			    c.confidence = percent;
-			    c.comparedataindex = i;
-			    c.value = GLOBAALI.getCharacter(i);
-			}
+	    let charbest = 0; // probability
+	    for(let i = 0; i < GLOBAALI.getCharacterCount(); i++) {
+		// should be same as the lineratio
+		let charratio = GLOBAALI.fontratio[i];
+		// should be same as the lineheight
+		let fontsize = fontSize(charheight, charratio);
+
+		// should be as close zero as possible
+		let diff = Math.abs(fontsize_quess - fontsize);
+		// fontsize was different from the quessed size
+		if (diff <= fontsize_diff) {
+		    var percent = GLOBAALI.compare(i, c.bounds.pixels);
+		    if (percent > charbest) {
+			charbest = percent;
+			c.confidence = percent;
+			c.comparedataindex = i;
+			c.value = GLOBAALI.getCharacter(i);
 		    }
 		}
-	    });
+	    }
 	});
-    }
-    
-	// Tekstin tulostaminen:
-	var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
-	var txt = "";
-	for(var i = 0; i < lines.length; i++) {
-		var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
-		for(var j = 0; j < lines[i].length; j++) {
-			if(j - 1 >= 0) {
-				var gap = (lines[i][j].bounds.topLeft[0] - lines[i][j-1].bounds.bottomRight[0]) + 1;
-				if(gap > space_width) txt += " ";
-			}
-			txt += lines[i][j].value;
-		}
-		
-		if(i + 1 < lines.length) txt += "\n";
-		
-		drawArea([lines[i][0].bounds.topLeft[0], lineHeights[i][0]], [lines[i][lines[i].length - 1].bounds.bottomRight[0], lineHeights[i][1]], "#0000FF");
+    });
+
+    // Teksti jossa suurten ja pienten kirjainten virheet korjattu
+    let correct_text = convertLinesToString(lines, empty_space_ratio);
+
+    // Yhdistetään alkuperäinen ja virheenkorjaus tekstit
+    let result_text = "";
+    for (var i = 0; i < default_text.length; i++) {
+	const default_char = default_text.charAt(i);
+	const correct_char = correct_text.charAt(i);
+	// tarkistetaan löysikö virheenkorjaus saman kirjaimen
+	if (default_char.toLowerCase() === correct_char.toLowerCase()) {
+	    // virheenkorjaus valitaan jos samat kirjaimet
+	    // virheenkorjaus tunnistaa oikean fonttikoon
+	    result_text += correct_char;
+	} else {
+	    // fonttikokoa ei voida verrata kun eri kirjaimet
+	    // muuten tunnistetaan tod.näk. väärä kirjain
+	    result_text += default_char;
 	}
-	
-    document.getElementById("TextOutput").value = txt;
+    }
+
+    // Tekstintunnistus valmis:
+    document.getElementById("TextOutput").value = result_text;
     updateProgressBar(100, SECONDS);
-	
 	
 	/**
 	 * teksti rivitetaan jarjestamalla kirjaimet Y:n ja X:n perusteella
