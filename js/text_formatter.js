@@ -37,13 +37,16 @@ function formatText(characters) {
 	}
     
     // Tekstin tulostaminen:
-    var empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
-    let default_text = convertLinesToString(lines, empty_space_ratio);
+    let default_text = convertLinesToString(lines);
+    //empty_space_ratio = document.getElementById("EmptySpaceRatio").value;
+    //let default_text = convertLinesToString(lines, empty_space_ratio);
     
-    function convertLinesToString(lines, empty_space_ratio) {
+    function convertLinesToString(lines) {
 	var txt = "";
 	for (var i = 0; i < lines.length; i++) {
-	    var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
+
+	    var space_width = quessSpaceWidth(lines[i]);
+	    //var space_width = ((lineHeights[i][1] - lineHeights[i][0]) + 1) * empty_space_ratio;
 	    for (var j = 0; j < lines[i].length; j++) {
 		if (j - 1 >= 0) {
 		    var gap = (lines[i][j].bounds.topLeft[0] - lines[i][j-1].bounds.bottomRight[0]) + 1;
@@ -55,6 +58,33 @@ function formatText(characters) {
 	    if (i + 1 < lines.length) txt += "\n";
 	}
 	return txt;
+    }
+
+    /**
+     * Arvaa välilyöntien leveyden =)
+     */
+    function quessSpaceWidth(line) {
+	let empty_widths = [];
+	for (var k = 1; k < line.length; k++) {
+	    let previous = line[k-1].bounds.bottomRight[0];
+	    let current = line[k].bounds.topLeft[0];
+	    let empty_width = Math.abs(current - previous);
+	    empty_widths.push(empty_width);
+	}
+
+	if (empty_widths.length > 0) {
+	    let deviation = sd(empty_widths);
+	    let spacesize = quessFontSize(empty_widths) + deviation;
+	    
+	    if (deviation < 1) {
+		// ei välilyöntejä
+		spacesize += (1/deviation);
+	    }
+	    
+	    return spacesize;
+	}
+	
+	return 0; // ei välilyöntejä
     }
 
     // Rivien piirtäminen:
@@ -110,7 +140,8 @@ function formatText(characters) {
     });
 
     // Teksti jossa suurten ja pienten kirjainten virheet korjattu
-    let correct_text = convertLinesToString(lines, empty_space_ratio);
+    //let correct_text = convertLinesToString(lines, empty_space_ratio);
+    let correct_text = convertLinesToString(lines, 0);
 
     // Yhdistetään alkuperäinen ja virheenkorjaus tekstit
     let result_text = "";

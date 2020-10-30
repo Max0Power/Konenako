@@ -355,14 +355,15 @@ function filterArray(array, threshold) {
     let below_size = below_array.length;
     let over_size = over_array.length;
 
-    if (below_array.length > 0 || over_array.length > 0) {
-	if (below_array.length > over_array.length) {
+    if (below_size > 0 || over_size > 0) {
+	if (below_size > over_size) {
 	    return below_array;
 	}
 	return over_array;
-    } else {
-	throw new Error("Virhe");
     }
+    return array
+
+    
 }
 
 // HUOM! ei käytössä

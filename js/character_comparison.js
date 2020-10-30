@@ -22,7 +22,7 @@ class ComparisonData {
 		this.comparison_characters = [];
 		this.comparison_fonts = [];
 		this.fontratio = [];
-	    
+	    this.spaceratio = [];
  	}
 	
 	
@@ -33,6 +33,11 @@ class ComparisonData {
 		for (var i = 0; i < data.length; i++) {
 			this.addCharacter(data[i], size, font);
 		}
+
+	    // välilyönnin leveys tietyllä fontilla
+	    //const latestchar = this.comparison_characters[this.comparison_characters-1];
+	    //const spacewidth = this.setEmptySpaceRatio(latestchar, size, font);
+	    //this.spaceratio[font] = spacewidth;
 	}
 	
 	
@@ -175,4 +180,75 @@ class ComparisonData {
 	getCharacterCount() {
 		return this.comparison_characters.length;
 	}
+
+
+    /**
+     * Palauttaa fontin välilyönnin leveyden suhteessa fonttikokoon
+     * @param sample merkki josta välilyönnin leveys lasketaan
+     * @param size
+     * @param font
+     * @return {double} välilyönnin leveyden suhde rivin korkeuteen
+     */
+    setEmptySpaceRatio(sample, size, font) {
+	// create a canvas for sample character
+	const canvas = document.createElement("CANVAS");
+	const ctx = canvas.getContext("2d");
+
+	// measure width and height
+	setContext(ctx, size, font);
+
+	// measure c width and height based on ctx
+	let metrics = ctx.measureText(`${sample} ${sample}`);
+	let actualLeft = metrics.actualBoundingBoxLeft;
+	let actualRight = metrics.actualBoundingBoxRight;
+
+	// setting width or height resets canvas ctx
+	const with_space = actualLeft + actualRight;
+
+	metrics = ctx.measureText(`${sample}${sample}`);
+	actualLeft = metrics.actualBoundingBoxLeft;
+	actualRight = metrics.actualBoundingBoxRight;
+
+	// setting width or height resets canvas ctx
+	const without_space = actualLeft + actualRight;
+
+	const actualTop = metrics.actualBoundingBoxAscent;
+	const actualBottom = metrics.actualBoundingBoxDescent;
+
+	const actualHeight = actualTop + actualBottom;
+	
+	function setContext(ctx, size, font) {
+	    // canvas ctx settings
+	    ctx.font = `${size}px ${font}`;
+	    ctx.fillStyle = "black";
+	    ctx.textBaseline = "top";
+	}
+
+	console.log(Math.abs(with_space - without_space) / size);
+	return Math.abs(with_space - without_space) / size;
+    }
+
+    /**
+     * Ei käytössä!
+     */
+    getEmptySpaceRatio(lineheight) {
+	let unique = this.comparison_fonts.filter(onlyUnique);
+
+	function onlyUnique(value, index, self) {
+	    return self.indexOf(value) === index;
+	}
+	
+	unique = unique.map(font => {
+	    return lineheight * this.spaceratio[font];
+	});
+
+	//let mean = quessFontSize(unique);
+	let mean = average(unique);
+	let deviation = sd(unique);
+	
+	return {
+	    mean: mean,
+	    deviation: deviation
+	};
+    }
 }
