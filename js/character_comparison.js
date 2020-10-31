@@ -23,6 +23,7 @@ class ComparisonData {
 		this.comparison_fonts = [];
 		this.fontratio = [];
 	    this.spaceratio = [];
+	    this.areaFiltering = Number.MAX_SAFE_INTEGER;
  	}
 	
 	
@@ -144,8 +145,11 @@ class ComparisonData {
 		var sample_ratio = this.comparison_data[index].length / this.comparison_data[index][0].length;
 		var eps = 0.2;
 		if (m_ratio < sample_ratio - MAX_EPS_TO_RATIO || m_ratio > sample_ratio + MAX_EPS_TO_RATIO) return 0;
-	    if (m_to_compare_with.length < document.getElementById("AreaFiltteringX").value ||
-		m_to_compare_with[0].length < document.getElementById("AreaFiltteringY").value) return 0;
+
+	let areasize = m_to_compare_with.length * m_to_compare_with[0].length;
+	if (areasize < GLOBAALI.getAreaFiltering()) return 0;
+	//if (m_to_compare_with.length < document.getElementById("AreaFiltteringX").value ||
+	//    m_to_compare_with[0].length < document.getElementById("AreaFiltteringY").value) return 0;
 		
 		//..... .... lopulta skaalataan samaan kokoon
 		var sample_scaled = scaleMatrix(this.comparison_data[index], m_to_compare_with.length, m_to_compare_with[0].length); // kaavat.js
@@ -211,11 +215,6 @@ class ComparisonData {
 
 	// setting width or height resets canvas ctx
 	const without_space = actualLeft + actualRight;
-
-	const actualTop = metrics.actualBoundingBoxAscent;
-	const actualBottom = metrics.actualBoundingBoxDescent;
-
-	const actualHeight = actualTop + actualBottom;
 	
 	function setContext(ctx, size, font) {
 	    // canvas ctx settings
@@ -224,19 +223,15 @@ class ComparisonData {
 	    ctx.textBaseline = "top";
 	}
 
-	console.log(Math.abs(with_space - without_space) / size);
 	return Math.abs(with_space - without_space) / size;
     }
 
     /**
      * Ei käytössä!
      */
+    /*
     getEmptySpaceRatio(lineheight) {
-	let unique = this.comparison_fonts.filter(onlyUnique);
-
-	function onlyUnique(value, index, self) {
-	    return self.indexOf(value) === index;
-	}
+	let unique = removeDuplicates(this.comparison_fonts);
 	
 	unique = unique.map(font => {
 	    return lineheight * this.spaceratio[font];
@@ -250,5 +245,50 @@ class ComparisonData {
 	    mean: mean,
 	    deviation: deviation
 	};
+    }
+    */
+    
+    /**
+     * Perustuu siihen että x_px <= y_px, kun x <= y, jolloin
+     * pienimmän fonttikoon pienin kirjain on suurin alaraja.
+     * Niinpä ei tarvitse optimoida yhtään mitään!
+     * 
+     * @param fontsize {number} pienin sallittu fonttikoko
+     */
+    setAreaFiltering(fontsize) {
+	const canvas = document.createElement("CANVAS");
+	const ctx = canvas.getContext("2d");
+	
+	let fonts = removeDuplicates(this.comparison_fonts);
+	let chars = removeDuplicates(this.comparison_characters);
+
+	this.areaFiltering = Number.MAX_SAFE_INTEGER;
+
+	// vastedata täytyy ensin alustaa!
+	assert(fonts.length > 0 && chars.length > 0);
+	
+	fonts.forEach(font => {
+	    setContext(ctx, fontsize, font);
+	    chars.forEach(character => {
+		let metrics = ctx.measureText(character);
+		let actualWidth = Math.ceil(metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight);
+		let actualHeight = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
+		let actualSize = Math.ceil(actualWidth * actualHeight);
+
+		if (actualSize < this.areaFiltering) {
+		    this.areaFiltering = actualSize;
+		}
+	    });
+	});
+
+	function setContext(ctx, size, font) {
+	    ctx.font = `${size}px ${font}`;
+	    ctx.fillStyle = "black";
+	    ctx.textBaseline = "top";
+	}
+    }
+
+    getAreaFiltering() {
+	return this.areaFiltering;
     }
 }

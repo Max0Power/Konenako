@@ -395,3 +395,13 @@ function generateNeighbourPointers(x_reach, y_reach) {
 	
 	return pointers;
 }
+
+/**
+ * @example
+ *   removeDuplicates(['a',1,'a',1]) === ['a',1];
+ */
+function removeDuplicates(array) {
+    return array.filter(function (value, index, self) {
+	return self.indexOf(value) === index;
+    });
+}

@@ -13,12 +13,14 @@ var INTERVAL;
 
 var SECONDS;
 
+var GLOBAALI;
+
 /**
  * Sivuston valmistuessa asetetaan ohjelman päätoiminnot eli kuvan analysointi
  */
 window.onload = function() {
-	// Haetaan TextArea, joka toimii OutPuttina:
-	var textOutput = document.getElementById("TextOutput");
+    // Luodaan vaste data:
+    GLOBAALI = makeComparisonData();
 
 	analyzeUserInput();
 }

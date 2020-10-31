@@ -6,9 +6,36 @@
 
 "use strict";
 
-var GLOBAALI = undefined;
-
 const MIN_CONFIDENCE = 0.6;
+
+function makeComparisonData() {
+    var basic_data_set = ['A','B','C','D','E','F','G',
+			  'H','I','J','K','L','M','N',
+			  'O','P','Q','R','S','T','U',
+			  'V','W','X','Y','Z',
+			  'a','b','c','d','e','f','g',
+			  'h','i','j','k','l','m','n',
+			  'o','p','q','r','s','t','u',
+			  'v','w','x','y','z',
+			  '0','1','2','3','4','5','6','7','8','9',
+			  '-', '+', '/', '\\', '!'];
+
+    var basic_font_set = ["Arial",
+			  "Times New Roman",
+			  "Helvetica",
+			  "Verdana",
+			  "Courier New"];
+    
+    var basic_comparison_data = new ComparisonData();
+
+    basic_font_set.forEach(font => {
+	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, font);
+    });
+
+    basic_comparison_data.setAreaFiltering(8);
+    
+    return basic_comparison_data;
+}
 
 /**
  * Tekee tunnistuksen loydetyille alueille mustavalkokuvasta
@@ -18,25 +45,10 @@ const MIN_CONFIDENCE = 0.6;
  */
 function detectCharacters(bw_m, areas) {
     var area_count_at_start = areas.length;
+    var basic_comparison_data = GLOBAALI;
     
 	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
-	
-	
-	// Luodaan vaste data:
-	var basic_data_set = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
-			      'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
-			      '0','1','2','3','4','5','6','7','8','9',
-			      '-', '+', '/', '\\', '!'];
-	
-	var basic_comparison_data = new ComparisonData();
-	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Arial");
-	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Times New Roman");
-	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Helvetica");
-	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Verdana");
-    basic_comparison_data.addCharacterDataSet(basic_data_set, 256, "Courier New");
-    
-    GLOBAALI = basic_comparison_data;
 	
 	// Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
     clearInterval(INTERVAL);
