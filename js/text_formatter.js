@@ -112,11 +112,16 @@ function formatText(characters) {
 	// arvaa rivin kirjainten fonttikoon
 	let fontsize_quess = quessFontSize(fontsize_array);
 
+	// nollataan välissä
+	//fontsize_array = [];
+	//let font_array = [];
+
 	line.forEach(c => {
 	    // kirjaimen todellinen korkeus
 	    let charheight = c.bounds.pixelHeight();
 
 	    let charbest = 0; // probability
+	    //let charindx = 0; // index
 	    for(let i = 0; i < GLOBAALI.getCharacterCount(); i++) {
 		// should be same as the lineratio
 		let charratio = GLOBAALI.fontratio[i];
@@ -130,19 +135,30 @@ function formatText(characters) {
 		    var percent = GLOBAALI.compare(i, c.bounds.pixels);
 		    if (percent > charbest) {
 			charbest = percent;
+			//charindx = i;
 			c.confidence = percent;
 			c.comparedataindex = i;
 			c.value = GLOBAALI.getCharacter(i);
 		    }
 		}
 	    }
+	    
+	    /*
+	    // JACKPOT 777
+	    let chartemp = GLOBAALI.getCharacter(charindx);
+	    if (chartemp.toLowerCase() === c.value.toLowerCase()) {
+		var [fontsize,font] = getTrueFontSize(c);
+		fontsize_array.push(fontsize);
+		font_array.push(font)
+	    }
+	    */
 	});
     });
 
     // Teksti jossa suurten ja pienten kirjainten virheet korjattu
     //let correct_text = convertLinesToString(lines, empty_space_ratio);
-    let correct_text = convertLinesToString(lines, 0);
-
+    let correct_text = convertLinesToString(lines);
+    
     // Yhdistetään alkuperäinen ja virheenkorjaus tekstit
     let result_text = "";
     for (var i = 0; i < default_text.length; i++) {

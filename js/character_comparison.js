@@ -138,24 +138,39 @@ class ComparisonData {
 	/**
 	 * Tekee vertailun indeksissa olevaan merkkiin nahden
 	 */
-	compare(index, m_to_compare_with) {
-		if (index < 0 || index > this.comparison_data.length - 1) return 0;
-		
-		var m_ratio = m_to_compare_with.length / m_to_compare_with[0].length;
-		var sample_ratio = this.comparison_data[index].length / this.comparison_data[index][0].length;
-		var eps = 0.2;
-		if (m_ratio < sample_ratio - MAX_EPS_TO_RATIO || m_ratio > sample_ratio + MAX_EPS_TO_RATIO) return 0;
 
-	let areasize = m_to_compare_with.length * m_to_compare_with[0].length;
-	if (areasize < GLOBAALI.getAreaFiltering()) return 0;
+    compare(index, m_to_compare_with) {
+	// Taulukon indeksin oikeellisuustarkistus
+	assert(index >= 0 && index < this.comparison_data.length);
+	
+	var m_width = m_to_compare_with.length
+	var m_height = m_to_compare_with[0].length
+	var m_ratio = m_width / m_height;
+	
+	var sample_width = this.comparison_data[index].length;
+	var sample_height = this.comparison_data[index][0].length;
+	var sample_ratio = sample_width / sample_height;
+		    
+	// Alueen ja vastedata mittasuhteet eivät täsmää    
+	if (Math.abs(m_ratio - sample_ratio) > MAX_EPS_TO_RATIO) return 0;
+
+	// Alue pienempää kuin pienimmän fonttikoon pienin kirjain
+	if (m_width * m_height < GLOBAALI.getAreaFiltering()) return 0;
+	
 	//if (m_to_compare_with.length < document.getElementById("AreaFiltteringX").value ||
 	//    m_to_compare_with[0].length < document.getElementById("AreaFiltteringY").value) return 0;
-		
-		//..... .... lopulta skaalataan samaan kokoon
-		var sample_scaled = scaleMatrix(this.comparison_data[index], m_to_compare_with.length, m_to_compare_with[0].length); // kaavat.js
-		
-		return sad(m_to_compare_with, sample_scaled);
-	}
+
+	//var m_fontsize = fontSize(m_height, this.fontratio[index]);
+	//var sample_fontsize = makeCharacter2(this.comparison_characters[index], m_height, this.comparison_fonts[index]);
+	//if (Math.abs(m_fontsize - sample_fontsize) > 5) return 0;
+	
+	//..... .... lopulta skaalataan samaan kokoon
+	//var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
+	var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
+
+	// Suoritetaan pikselitason vertailu lopuksi
+	return sad(m_to_compare_with, sample_scaled);
+    }
 	
 	
 	/**
