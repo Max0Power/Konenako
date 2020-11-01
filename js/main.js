@@ -21,8 +21,18 @@ var GLOBAALI;
 window.onload = function() {
     // Luodaan vaste data:
     GLOBAALI = makeComparisonData();
+    var test = makeCharacter("a", 512, "Arial");
+    drawPixelArray(test);
+    
+    var hogtest = hog(test);
+    drawHOG(hogtest);
+    console.log(hogtest);
+    
+    
+    
+    
 
-	analyzeUserInput();
+//	analyzeUserInput();
 }
 
 

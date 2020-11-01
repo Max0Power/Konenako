@@ -1,4 +1,4 @@
-# Pure JavaScript for Optical Character Recognition (OCR)
+# Pure JavaScript for Optical Character Recognition
 
 ## Getting started
 
