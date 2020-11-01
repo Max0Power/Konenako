@@ -24,6 +24,7 @@ class ComparisonData {
 		this.fontratio = [];
 	    this.spaceratio = [];
 	    this.areaFiltering = Number.MAX_SAFE_INTEGER;
+	    //this.comparison_hog =[];
  	}
 	
 	
@@ -32,7 +33,9 @@ class ComparisonData {
 	 */
 	addCharacterDataSet(data, size, font) {
 		for (var i = 0; i < data.length; i++) {
-			this.addCharacter(data[i], size, font);
+		    this.addCharacter(data[i], size, font);
+		    //let index = this.comparison_data.length-1;
+		    //this.comparison_hog.push(hog(this.comparison_data[index]));
 		}
 
 	    // välilyönnin leveys tietyllä fontilla
@@ -135,10 +138,9 @@ class ComparisonData {
 	}
 	
 	
-	/**
-	 * Tekee vertailun indeksissa olevaan merkkiin nahden
-	 */
-
+    /**
+     * Tekee vertailun indeksissa olevaan merkkiin nahden
+     */
     compare(index, m_to_compare_with) {
 	// Taulukon indeksin oikeellisuustarkistus
 	assert(index >= 0 && index < this.comparison_data.length);
@@ -159,13 +161,8 @@ class ComparisonData {
 	
 	//if (m_to_compare_with.length < document.getElementById("AreaFiltteringX").value ||
 	//    m_to_compare_with[0].length < document.getElementById("AreaFiltteringY").value) return 0;
-
-	//var m_fontsize = fontSize(m_height, this.fontratio[index]);
-	//var sample_fontsize = makeCharacter2(this.comparison_characters[index], m_height, this.comparison_fonts[index]);
-	//if (Math.abs(m_fontsize - sample_fontsize) > 5) return 0;
 	
 	//..... .... lopulta skaalataan samaan kokoon
-	//var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
 	var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
 
 	// Suoritetaan pikselitason vertailu lopuksi
@@ -202,12 +199,15 @@ class ComparisonData {
 
 
     /**
+     * Ei käytössä!
+     * 
      * Palauttaa fontin välilyönnin leveyden suhteessa fonttikokoon
      * @param sample merkki josta välilyönnin leveys lasketaan
      * @param size
      * @param font
      * @return {double} välilyönnin leveyden suhde rivin korkeuteen
      */
+    /*
     setEmptySpaceRatio(sample, size, font) {
 	// create a canvas for sample character
 	const canvas = document.createElement("CANVAS");
@@ -240,6 +240,7 @@ class ComparisonData {
 
 	return Math.abs(with_space - without_space) / size;
     }
+    */
 
     /**
      * Ei käytössä!

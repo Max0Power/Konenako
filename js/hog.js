@@ -146,9 +146,6 @@ function hog(matrix) {
     //return make36x1Histograms(matrix);
     return make36x1Histograms(make9x1Histograms(...makeToGradientObj(matrix)));
 
-    // Deprecated:
-    //return histograms36x1ToOneDimension(matrix);
-
     /**
      * Luo matriisin pohjalta gradientti-objektin, joka koostuu
      * kahdesta matriisista: .magnitude ja .orientation.
@@ -372,14 +369,12 @@ function drawHOG(histograms36x1) {
 		var l_end_x = x * 16 + line_end_points[angle_index][0];
 		var l_end_y = y * 16 + line_end_points[angle_index][1];
 
-
 		ctx.strokeStyle = "rgb(" + col + "," + col + "," + col + ")";
 		ctx.lineWidth = 1;
 		ctx.beginPath();
 		ctx.moveTo(l_start_x, l_start_y);
 		ctx.lineTo(l_end_x, l_end_y);
 		ctx.stroke();
-
 	    }
 	}
     }

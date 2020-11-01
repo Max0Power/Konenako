@@ -248,8 +248,11 @@ function quessFontSize(fontsize_array) {
 
 
 /**
+ * Ei käytössä!
+ * 
  * Rivin eniten esiintyvaa fontti tunnistuksen perusteella (ei kayteta talle hetkella --> ei parantanut tunnistusta)
  */
+/*
 function mostPopularFont(line) {
     var allfonts = [];
     
@@ -274,3 +277,4 @@ function mostPopularFont(line) {
 
     return most_popular;
 }
+*/
