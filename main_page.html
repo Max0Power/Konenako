@@ -10,86 +10,124 @@
 		<link rel="icon" href="images/Logo.png">
 		<!-- Styles: css/name.css -->
 		<link rel="stylesheet" href="css/styles.css" />
-		<!-- Scripts: js/name.js -->
-		<script src="js/character_comparison.js"></script>
-		<script src="js/text_formatter.js"></script>
-		<script src="js/pixel_filttering.js"></script>
-		<script src="js/character_detection.js"></script>
-		<script src="js/area_detection.js"></script>
-		<script src="js/drawing.js"></script>
-		<script src="js/main.js"></script>
-		<script src="js/kaavat.js"></script>
-		<script src="js/hog.js"></script>
+		<!-- Javascript scripts: js/name.js -->
+		<script type="text/javascript" src="js/drawing.js"></script>
+		<script type="text/javascript" src="js/character_comparison.js"></script>
+		<script type="text/javascript" src="js/text_formatter.js"></script>
+		<script type="text/javascript" src="js/pixel_filttering.js"></script>
+		<script type="text/javascript" src="js/character_detection.js"></script>
+		<script type="text/javascript" src="js/area_detection.js"></script>
+		<script type="text/javascript" src="js/main.js"></script>
+		<script type="text/javascript" src="js/kaavat.js"></script>
+		<script type="text/javascript" src="js/hog.js"></script>
+		<!-- Title -->
 		<title>Image To Text Generator</title>
 	</head>
 	
-	<body>
-	  <h1>IMAGE TO TEXT GENERATOR</h1>
-	  <br>
-		<div id="FileDiv">
-			
-		  <!-- Image Input: -->
-		  <div style="padding-bottom: 0.5em">
-				<input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
-			
-				<!-- Show Image -->
-				<label for="toggleimage" style="margin-left: 0.5em;">Show image:</label>
-				<input style="margin-right: 1px;" type="checkbox" id="ToggleImage" name="toggleimage" onclick=toggleImage() checked></input>
-
-				<button onclick=copyToClipboard()>Copy Text</button>
-		  </div>
-				
-				<div class="args" style="border:1px solid gray;">
-				
-				  <label for="invertColors">
-				    <div class="tooltip">Invert colors:
-				      <span class="tooltiptext">Text should always appear black. If this is not the case, you should click this box.</span>
-				    </div>
-				  </label>
-				  
-				  
-				<input type="checkbox" id="InvertColors" name="invertColors" onchange=analyzeUserInput()></input>
-
-				<label for="areaSearchDst">
-				  <div class="tooltip">Area search distance:
-				    <span class="tooltiptext">This variable is used to connect black areas that should be connected vertically.</span>
-				  </div>
-				</label>
-				<input type="number" id="AreaSearchDst" name="areaSearchDst" value="4" min="1" max="100" onchange=analyzeUserInput()></input>
-
-				<!--<label for="emptySpaceRatio">
-				  <div class="tooltip">Empty space ratio:
-				    <span class="tooltiptext">Empty space between characters is calculated based on line height.</span>
-				  </div>
-				</label>
-				<input type="number" id="EmptySpaceRatio" name="emptySpaceRatio" value="0.4" min="0" max="1" step="0.01" onchange=analyzeUserInput()></input>-->
-				<!--
-				<label>
-				  <div class="tooltip">Area Filttering: 
-				    <span class="tooltiptext">If the found area is smaller than the defined size on the X or Y axis, it is ignored.</span>
-				  </div>
-				  </label>
-				<label for="areaFiltteringX">x</label>
-				<input type="number" id="AreaFiltteringX" name="areaFiltteringX" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
-				
-				<label for="areaFiltteringY">y</label>
-				<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>				
-				-->
-				</div>
-				
-				<!-- Progress Bar -->
-				<div class="args" style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray;">
-				  <span id="ProgressBar"></span>
-				</div>
-				<!-- Image -->
-				<div style="border-right: 1px solid gray; border-left: 1px solid gray; border-bottom: 1px solid gray;">
-				  <canvas id="Drawing"></canvas>
-				  </div>
-				<br>
+	<body onresize=updateUserImageCanvas()>
 		
+		<!-- Sivun otsikko -->
+		<h1>IMAGE TO TEXT GENERATOR</h1>
+				
+		<!-- MainContainer - sisaltaa mm. kayttajan syotteet, kuvan esityksen, asetukset, outputin. Esitetaan keskitettyna -->
+		<div id ="MainContainer">
+		
+			<!-- Kayttajan syote: -->
+			<div id="UserInput">
+				<div style="padding-bottom: 0.5em;">
+					<input type="file" id="FileInput"  multiple size="1" accept="image/x-png, image/jpeg" onchange=analyzeUserInput()></input>
+					<!-- Show Image, Show Settings, Copy text -->
+					<label for="toggleImage" style="margin-left: 0.5em;">Show image:</label>
+					<input type="checkbox" id="ToggleImage" name="toggleImage" onclick=toggleImage() checked></input>
+					<label for="toggleSettings" style="margin-left: 0.5em;">Show Settings:</label>
+					<input type="checkbox" id="ToggleSettings" name="toggleSettings" onclick=toggleSettings()></input>
+					<button onclick=copyToClipboard()>Copy Text</button>
+				</div>
+			</div>
+			
+			<!-- Canvas kayttajan kuvalle: -->
+			<div id="UserImgCanvasContainer">
+			  <canvas id="UserImgCanvas"></canvas>
+			</div>
+			
+			<!-- Progress Bar -->
+			<div>
+			  <span id="ProgressBar"></span>
+			</div>
+		
+			<!-- Saadettavat asetukset -->
+			<div id="Settings" style="display: none;">
+				
+				<h3 class="SettingsItem">Settings:</h3>	
+				
+				<!-- Varin vaihto -->
+				<div class="SettingsItem">
+					<label for="invertColors">
+						<div class="tooltip">Invert colors:
+							<span class="tooltiptext">Text should always appear black. If this is not the case, you should click this box.</span>
+						</div>
+					</label>  
+					<input type="checkbox" id="InvertColors" name="invertColors" onchange=analyzeUserInput()></input>
+				</div>
+				
+				<!-- Mustavalkokuvan thresholdin saato -->
+				<div class="SettingsItem">
+					<label for="blackAndWhiteThresholdMethod">
+						<div class="tooltip">Black And white conversion threshold method:
+							<span class="tooltiptext">Threshold is used to determine if pixel is black or white</span>
+						</div>
+					</label>
+					<select name="blackAndWhiteThresholdMethod" id="BlackAndWhiteThresholdMethod" onchange=handleBlackAndWhiteConversionUI()>
+						<option value="automatic">Automatic</option>
+						<option value="custom">Custom</option>
+					</select>
+					<input type="range"  min="0" max="255" value="200" class="slider" id="BlackAndWhiteThresholdSlider" oninput=blackAndWhiteThresholdSliderOnInput() onchange=analyzeUserInput() style="visibility: hidden;"></input>
+					<input type="number" id="BlackAndWhiteThresholdValue" value="200" min="0" max="255" oninput=blackAndWhiterThresholdValueOnInput() onchange=analyzeUserInput() style="visibility: hidden;"></input>
+				</div>
+				
+				<!-- Arean etsinnan etaisyys -->
+				<div class="SettingsItem">
+					<label for="areaSearchDst">
+						<div class="tooltip">Area search distance:
+							<span class="tooltiptext">This variable is used to connect black areas that should be connected vertically.</span>
+						</div>
+					</label>
+					<input type="number" id="AreaSearchDst" name="areaSearchDst" value="4" min="1" max="100" onchange=analyzeUserInput()></input>
+				</div>			
+				
+				<!-- Tyhjien merkkien maaritys -->
+				<div class="SettingsItem">
+					<label for="spacingMethod">
+						<div class="tooltip">Spacing method:
+							<span class="tooltiptext">Spacing method is used to determine empty spaces. "Custom" -option calculates empty spaces based on given value</span>
+						</div>
+					</label>
+					<select name="spacingMehthod" id="SpacingMethod" onchange=handleSpacingUI()>
+						<option value="automatic">Automatic</option>
+						<option value="custom">Custom</option>
+					</select>
+					<input type="range"  min="0" max="100" value="25" class="slider" id="SpacingSlider" oninput=spacingSliderOnInput() onchange=analyzeUserInput() style="visibility: hidden;"></input>
+					<input type="number" id="SpacingValue" value="0.25" min="0" max="1" step="0.01" oninput=spacingValueOnInput() onchange=analyzeUserInput() style="visibility: hidden;"></input>
+				</div>
+				
+				<!-- Area filtterointi -->
+				<div class="SettingsItem">
+					<label>
+						<div class="tooltip">Area Filttering: 
+							<span class="tooltiptext">If the found area is smaller than the defined size on the X or Y axis, it is ignored.</span>
+						</div>
+					</label>
+					<label for="areaFiltteringX">x</label>
+					<input type="number" id="AreaFiltteringX" name="areaFiltteringX" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>		
+					<label for="areaFiltteringY">y</label>
+					<input type="number" id="AreaFiltteringY" name="areaFiltteringY" value="2" min="0" max="100" step="1" onchange=analyzeUserInput()></input>
+				</div>
+			</div>	
+
 			<!-- Output Area -->
 			<textarea id="TextOutput"></textarea>
+			
 		</div>
-		<div id="Testing"></div>
+		
 	</body>
 </html> 

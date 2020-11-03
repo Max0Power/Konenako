@@ -6,10 +6,24 @@
 
 "use strict";
 
-const MIN_CONFIDENCE = 0.6;
+// CHARACTER_COMPARISON_DATA on Globaali ComparisonData -olio, joka pitaa sisallaan ohjelman kayttaman vasteen.
+// CHARACTER_COMPARISON_DATA asetetaan kayttoon makeCharacterComparisonData() funktiolla.
+var CHARACTER_COMPARISON_DATA = null;
+// SPECIAL_CHARACTERS: pitaa sisallaan merkit, jotka vaativat tavallista korkeaman todennakoisyyden, jotta ne hyvaksytaan tunnistetuksi.
+const SPECIAL_CHARACTERS = ['.', ','];
+// Seuraavat muuttuja merkkaavat vahimmaista vaadittua yhtalaisyytta vasteeseen nahden, jotta merkki voidaan hyvaksya tunnistetuksi.
+const MIN_BASIC_CHARACTER_SIMILARITY_REQUIRED = 0.6;
+const MIN_SPECIAL_CHACACTER_SIMILARITY_REQUIRED = 0.8;
 
-function makeComparisonData() {
-    var basic_data_set = ['A','B','C','D','E','F','G',
+
+/**
+ * Alustaa globaalin CHARACTER_COMPARISON_DATA ComparisonData -olion.
+ * Pitaa sisallaan vasteen, jota kaytetaan merkkien tunnistuksessa.
+ * Kutsutaan heti sivun latautuessa ensimmaista kertaa
+ */
+function makeCharacterComparisonData() {
+	
+    var characters = ['A','B','C','D','E','F','G',
 			  'H','I','J','K','L','M','N',
 			  'O','P','Q','R','S','T','U',
 			  'V','W','X','Y','Z',
@@ -18,24 +32,23 @@ function makeComparisonData() {
 			  'o','p','q','r','s','t','u',
 			  'v','w','x','y','z',
 			  '0','1','2','3','4','5','6','7','8','9',
-			  '-', '+', '/', '\\', '!'];
+			  '.',',','-', '+', '/', '\\', '!'];
 
-    var basic_font_set = ["Arial",
+    var fonts = ["Arial",
 			  "Times New Roman",
 			  "Helvetica",
 			  "Verdana",
 			  "Courier New"];
     
-    var basic_comparison_data = new ComparisonData();
+    var comparisonDataObj = new ComparisonData();
 
-    basic_font_set.forEach(font => {
-	basic_comparison_data.addCharacterDataSet(basic_data_set, 256, font);
-    });
-
-    basic_comparison_data.setAreaFiltering(8);
+	for (var i = 0; i < fonts.length; i++) {
+		comparisonDataObj.addCharacterDataSet(characters, 256, fonts[i]);
+	}
     
-    return basic_comparison_data;
+    return comparisonDataObj;
 }
+
 
 /**
  * Tekee tunnistuksen loydetyille alueille mustavalkokuvasta
@@ -45,10 +58,11 @@ function makeComparisonData() {
  */
 function detectCharacters(bw_m, areas) {
     var area_count_at_start = areas.length;
-    var basic_comparison_data = GLOBAALI;
     
 	// Taulukko, johon kerataan tunnistetut merkit:
 	var characters = [];
+	
+	if (CHARACTER_COMPARISON_DATA === null) formatText(characters);
 	
 	// Asetetaan intervalli, joka kasittelee loydetyt alueet ja tekee tunnistuksen:
     clearInterval(INTERVAL);
@@ -61,31 +75,49 @@ function detectCharacters(bw_m, areas) {
 	    
 		const MAX_AREA_PROCESS_COUNT = 10;
 		var areas_processed_count = 0;
-		const charcolor = "#00FF00"; // green
+		const detected_character_draw_color = "#00FF00"; // green
 	    
 		while (areas_processed_count < MAX_AREA_PROCESS_COUNT && areas.length > 0) {
 			// Lasketaan todennakoisyydet suhteessa vastedatan merkkeihin:
 			var probablity_array = [];
-			for (var i = 0; i < basic_comparison_data.getCharacterCount(); i++) {
-				var probablity = basic_comparison_data.compare(i, areas[0].pixels);
-				probablity_array.push(probablity);
+			if (CHARACTER_COMPARISON_DATA !== null) {
+				for (var i = 0; i < CHARACTER_COMPARISON_DATA.getCharacterCount(); i++) {
+					var probablity = CHARACTER_COMPARISON_DATA.compare(i, areas[0].pixels);
+					probablity_array.push(probablity);
+				}
 			}
 			
-			// Etsitaan paras laskettu todennakoisyys:
-			var best_probablity_index = 0;
-			for (var i = 1; i < probablity_array.length; i++) {
-				if(probablity_array[i] > probablity_array[best_probablity_index]) {
-					best_probablity_index = i;
+			// Etsitaan paras laskettu todennakoisyys, joka on korkeampi kuin asetetut raja-arvot:
+			var best_probablity_index = -1;
+			var best_probablity = -1;
+			for (var i = 0; i < probablity_array.length; i++) {
+				if(probablity_array[i] > best_probablity) {
+					// asetetaan similarity_required sen mukaan onko kyseessa perusmerkki vai erikoismerkki
+					var similarity_required = MIN_BASIC_CHARACTER_SIMILARITY_REQUIRED;
+					for (var j = 0; j < SPECIAL_CHARACTERS.length; j++) {
+						if (CHARACTER_COMPARISON_DATA.getCharacter(i) === SPECIAL_CHARACTERS[j]) {
+							similarity_required = MIN_SPECIAL_CHACACTER_SIMILARITY_REQUIRED;
+							break;
+						}
+					}
+					// Jos merkille saatu todennakoisyys on korkeampi kuin maaritetty raja-arvo --> asetetaan se todennakoisimmaksi merkiksi
+					if (probablity_array[i] >= similarity_required) {
+						best_probablity_index = i;
+						best_probablity = probablity_array[i];						
+					}
 				}
 			}
 		    
-			// Jos paras todennakoisyys on yli maaritellyn raja-arvon --> lisataan Character olio characters taulukkoon
-		    if (probablity_array[best_probablity_index] > MIN_CONFIDENCE) {
-			var c = basic_comparison_data.getCharacter(best_probablity_index);
-			var f = GLOBAALI.getFont(best_probablity_index);
-			    characters.push(new Character(c, f, areas[0]));
-			    drawArea(areas[0].topLeft, areas[0].bottomRight, charcolor);
-			    characters[characters.length-1].confidence = probablity_array[best_probablity_index];
+			// Jos todennakoinen merkki loytyi vasteesta, joka ylitti asetetun raja-arvon:
+		    if (best_probablity_index >= 0) {
+				// lisataan tunnistettu merkki characters taulukkoon:
+				var c = CHARACTER_COMPARISON_DATA.getCharacter(best_probablity_index); // merkin symboli
+				var f = CHARACTER_COMPARISON_DATA.getFont(best_probablity_index); // merkin kayttama fontti
+			    characters.push(new Character(c, f, areas[0])); // lisataan merkki characters taulukkoon
+				// piirretaan kattama alue vihreksi (merkki tunnistettu):
+			    drawArea(areas[0].topLeft, areas[0].bottomRight, detected_character_draw_color);
+				// asettaa viela viimeisimmaksi lisatylle Character -oliolle mika oli todennakoisyys seka indeksi vasteessa:
+			    characters[characters.length-1].confidence = best_probablity;
 			    characters[characters.length-1].comparedataindex = best_probablity_index;
 			}
 			

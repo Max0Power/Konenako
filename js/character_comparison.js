@@ -87,6 +87,9 @@ class ComparisonData {
 		const ratio = fontRatio(height, size);
 		this.fontratio.push(ratio); 
 		
+		/**
+		 * Asettaa annettuun kanvasin kontekstiin (ctx) fontin seka koon
+		 */
 		function setContext(ctx, size, font) {
 			// canvas ctx settings
 			ctx.font = `${size}px ${font}`;
@@ -94,6 +97,9 @@ class ComparisonData {
 			ctx.textBaseline = "top";
 		}
 		
+		/**
+		 * Muuntaa kanvasin ctx:ssa olevan kuvan datan matriisiksi 
+		 */
 		function makeCanvasMatrix(ctx) {
 			// shortened names for width and height
 			const width = ctx.canvas.width;
@@ -142,31 +148,31 @@ class ComparisonData {
      * Tekee vertailun indeksissa olevaan merkkiin nahden
      */
     compare(index, m_to_compare_with) {
-	// Taulukon indeksin oikeellisuustarkistus
-	assert(index >= 0 && index < this.comparison_data.length);
-	
-	var m_width = m_to_compare_with.length
-	var m_height = m_to_compare_with[0].length
-	var m_ratio = m_width / m_height;
-	
-	var sample_width = this.comparison_data[index].length;
-	var sample_height = this.comparison_data[index][0].length;
-	var sample_ratio = sample_width / sample_height;
-		    
-	// Alueen ja vastedata mittasuhteet eivät täsmää    
-	if (Math.abs(m_ratio - sample_ratio) > MAX_EPS_TO_RATIO) return 0;
+		// Taulukon indeksin oikeellisuustarkistus
+		assert(index >= 0 && index < this.comparison_data.length);
+		
+		var m_width = m_to_compare_with.length
+		var m_height = m_to_compare_with[0].length
+		var m_ratio = m_width / m_height;
+		
+		var sample_width = this.comparison_data[index].length;
+		var sample_height = this.comparison_data[index][0].length;
+		var sample_ratio = sample_width / sample_height;
+				
+		// Jos alueen ja leveys/korkeus ratio ei ole lahella toisiaan --> palautetaan automaattisesti todennakoisyydeksi 0    
+		if (Math.abs(m_ratio - sample_ratio) > MAX_EPS_TO_RATIO) return 0;
+		
+		// Area filtterointi: Jos vertailtava alue on liian pieni vertailtavaksi leveydeltaan tai korkeudeltaan --> palautetaan automaattisesti 0.
+		if (m_to_compare_with.length <= document.getElementById("AreaFiltteringX").value ||
+		    m_to_compare_with[0].length <= document.getElementById("AreaFiltteringY").value) return 0;
+		if (m_to_compare_with.length <= 2 ||
+		    m_to_compare_with[0].length <= 2) return 0;
+		
+		//skaalataan vaste vertailua varten:
+		var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
 
-	// Alue pienempää kuin pienimmän fonttikoon pienin kirjain
-	if (m_width * m_height < GLOBAALI.getAreaFiltering()) return 0;
-	
-	//if (m_to_compare_with.length < document.getElementById("AreaFiltteringX").value ||
-	//    m_to_compare_with[0].length < document.getElementById("AreaFiltteringY").value) return 0;
-	
-	//..... .... lopulta skaalataan samaan kokoon
-	var sample_scaled = scaleMatrix(this.comparison_data[index], m_width, m_height); // kaavat.js
-
-	// Suoritetaan pikselitason vertailu lopuksi
-	return sad(m_to_compare_with, sample_scaled);
+		// Suoritetaan pikselitason vertailu lopuksi
+		return sad(m_to_compare_with, sample_scaled);
     }
 	
 	
@@ -263,48 +269,4 @@ class ComparisonData {
 	};
     }
     */
-    
-    /**
-     * Perustuu siihen että x_px <= y_px, kun x <= y, jolloin
-     * pienimmän fonttikoon pienin kirjain on suurin alaraja.
-     * Niinpä ei tarvitse optimoida yhtään mitään!
-     * 
-     * @param fontsize {number} pienin sallittu fonttikoko
-     */
-    setAreaFiltering(fontsize) {
-	const canvas = document.createElement("CANVAS");
-	const ctx = canvas.getContext("2d");
-	
-	let fonts = removeDuplicates(this.comparison_fonts);
-	let chars = removeDuplicates(this.comparison_characters);
-
-	this.areaFiltering = Number.MAX_SAFE_INTEGER;
-
-	// vastedata täytyy ensin alustaa!
-	assert(fonts.length > 0 && chars.length > 0);
-	
-	fonts.forEach(font => {
-	    setContext(ctx, fontsize, font);
-	    chars.forEach(character => {
-		let metrics = ctx.measureText(character);
-		let actualWidth = Math.ceil(metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight);
-		let actualHeight = Math.ceil(metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent);
-		let actualSize = Math.ceil(actualWidth * actualHeight);
-
-		if (actualSize < this.areaFiltering) {
-		    this.areaFiltering = actualSize;
-		}
-	    });
-	});
-
-	function setContext(ctx, size, font) {
-	    ctx.font = `${size}px ${font}`;
-	    ctx.fillStyle = "black";
-	    ctx.textBaseline = "top";
-	}
-    }
-
-    getAreaFiltering() {
-	return this.areaFiltering;
-    }
 }

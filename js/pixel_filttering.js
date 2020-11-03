@@ -7,60 +7,6 @@
 
 
 /**
- * Muuntaa harmaasavykuvan mustavalkokuvaksi. Ottaa myos parametrina inver_colors booleanin, jos on tarvetta vaihtaa varit toisinpain
- */
-function grayscaleToBlackAndWhite(g_m, invert_colors) {
-	var pixelCount = g_m.length * g_m[0].length;
-	
-	// Lasketaan kuvan valoisuuden keskiarvo
-	var treshold = 0;
-	for (var x = 0; x < g_m.length; x++) {
-		for(var y = 0; y < g_m[0].length; y++) {
-			treshold += g_m[x][y];
-		}
-	}
-	treshold = treshold / pixelCount;
-	
-	// Katsotaan onko tummat vai vaaleat pikselit dominoivia:
-	var darkPixelCount = 0;
-	var lightPixelCount = 0;
-	for (var x = 0; x < g_m.length; x++) {
-		for(var y = 0; y < g_m[0].length; y++) {
-			if (g_m[x][y] < treshold) {
-				darkPixelCount++;
-			}
-			else {
-				lightPixelCount++;
-			}
-		}
-	}
-	
-	// luodaan musta valko kuva, jossa teksti on muunnettu mustaksi:
-	var bw_m = new Array(g_m.length);
-	for (var x = 0; x < g_m.length; x++) {
-		bw_m[x] = new Array(g_m[0].length);
-		for(var y = 0; y < g_m[0].length; y++) {
-			// Tilanne, jossa pikseli muunnetaan mustaksi:
-			if ( (darkPixelCount <= lightPixelCount && g_m[x][y] < treshold) || (lightPixelCount < darkPixelCount && g_m[x][y] >= treshold)) {
-				bw_m[x][y] = 0;
-				if (invert_colors === true) {
-					bw_m[x][y] = 255;
-				}
-			} // muuten pikseli on valkoinen
-			else {
-				bw_m[x][y] = 255;
-				if (invert_colors === true) {
-					bw_m[x][y] = 0;
-				}
-			}
-		}
-	}
-	
-	return bw_m;
-}	
-
-
-/**
  * Lukee ladatun kuvan datan grayscale-matriisiksi
  * @param {Image} img - Latautunut Image elementti, josta pikselit luetaan
  * @return {Number[][]} - Palauttaa kaksi ulotteisen numero taulukon,
@@ -70,7 +16,7 @@ function readImageToGrayscaleMatrix(img) {
 	
 	// Luodaan kanvas, johon kuva piirretaan valiaikaisesti:
 	var canvas = document.createElement("canvas");
-
+	
 	canvas.width = img.naturalWidth;
 	canvas.height = img.naturalHeight;
 
@@ -95,6 +41,66 @@ function readImageToGrayscaleMatrix(img) {
 	// Palautetaan lopuksi kuvasta saatu numerotaulukko:
 	return matrix;
 }
+
+
+/**
+ * Muuntaa harmaasavykuvan mustavalkokuvaksi. Ottaa myos parametrina inver_colors booleanin, jos on tarvetta vaihtaa varit toisinpain
+ */
+function grayscaleToBlackAndWhite(g_m, invert_colors) {
+	
+	// Thresholdin maaritys sen perusteella onko kayttaja valinnut maarityksen automaattiseksi vai kustomiksi
+	var threshold = 0;
+	if (document.getElementById("BlackAndWhiteThresholdMethod").value === "custom") {
+		threshold = parseInt(document.getElementById("BlackAndWhiteThresholdValue").value, 10);
+	}
+	else { // Lasketaan kuvan valoisuuden keskiarvo, jos thresholdin maaritys on asetettu automaattiseksi:
+		var pixelCount = g_m.length * g_m[0].length;
+		for (var x = 0; x < g_m.length; x++) {
+			for(var y = 0; y < g_m[0].length; y++) {
+				threshold += g_m[x][y];
+			}
+		}
+		threshold = threshold / pixelCount;	
+	}
+	
+	// Katsotaan onko tummat vai vaaleat pikselit dominoivia:
+	var darkPixelCount = 0;
+	var lightPixelCount = 0;
+	for (var x = 0; x < g_m.length; x++) {
+		for(var y = 0; y < g_m[0].length; y++) {
+			if (g_m[x][y] < threshold) {
+				darkPixelCount++;
+			}
+			else {
+				lightPixelCount++;
+			}
+		}
+	}
+	
+	// luodaan musta valko kuva, jossa teksti on muunnettu mustaksi:
+	var bw_m = new Array(g_m.length);
+	for (var x = 0; x < g_m.length; x++) {
+		bw_m[x] = new Array(g_m[0].length);
+		for(var y = 0; y < g_m[0].length; y++) {
+			// Tilanne, jossa pikseli muunnetaan mustaksi:
+			if ( (darkPixelCount <= lightPixelCount && g_m[x][y] < threshold) || (lightPixelCount < darkPixelCount && g_m[x][y] >= threshold)) {
+				bw_m[x][y] = 0;
+				if (invert_colors === true) {
+					bw_m[x][y] = 255;
+				}
+			} // muuten pikseli on valkoinen
+			else {
+				bw_m[x][y] = 255;
+				if (invert_colors === true) {
+					bw_m[x][y] = 0;
+				}
+			}
+		}
+	}
+	
+	return bw_m;
+}	
+
 
 /**
  * Muuntaa grayscale-kuvan mustavalko-kuvaksi. Matala kynnys tekee
@@ -214,6 +220,7 @@ function balancedHistogramThreshold(matrix) {
 
     return threshold;
 }
+
 
 /**
  * Otsu's Thresholding Method

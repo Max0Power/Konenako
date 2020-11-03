@@ -6,21 +6,17 @@
  
 "use strict";
 
-// TODO: luokka Character, kirjoitetaan omaan javascript tiedostoon
-// TODO: luokka CharacterGroup, kirjoitetaan omaan javasctript tiedostoon
 
 var INTERVAL;
-
 var SECONDS;
 
-var GLOBAALI;
 
 /**
  * Sivuston valmistuessa asetetaan ohjelman päätoiminnot eli kuvan analysointi
  */
 window.onload = function() {
     // Luodaan vaste data:
-    GLOBAALI = makeComparisonData();
+    CHARACTER_COMPARISON_DATA = makeCharacterComparisonData();
     /*
     var test = makeCharacter("a", 128, "Arial");
     drawPixelArray(test);
@@ -29,6 +25,13 @@ window.onload = function() {
     drawHOG(hogtest);
     console.log(hogtest);
     */
+	
+	// Paivitetaan UI:
+	toggleImage();
+	toggleSettings();
+	handleBlackAndWhiteConversionUI();
+	handleSpacingUI() 
+	// Analysoidaan kuva tekstiksi:
     analyzeUserInput();
 }
 
@@ -56,20 +59,20 @@ function analyzeUserInput() {
 	else {
 		img.src = "images/Greeting.png";
 	}
-	// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
-    img.onload = function(e) {
-	// grayscale muunnos:
-	var g_m = readImageToGrayscaleMatrix(img);
-	
-	// mustavalko muunnos:
-	var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
-	
-	
-	// Yksinaisten pikslien filtterointi pois:
-	bw_m = removeNoise(bw_m, 1);
-	
-	// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
-	detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
+		// Kun käyttäjän syöttämä kuva on valmis --> luetaan kuvan pikselit ja analysoidaan kuvan sisältö tekstiksi
+		img.onload = function(e) {
+		// grayscale muunnos:
+		var g_m = readImageToGrayscaleMatrix(img);
+		
+		// mustavalko muunnos:
+		var bw_m = grayscaleToBlackAndWhite(g_m, document.getElementById("InvertColors").checked);
+		
+		
+		// Yksinaisten pikslien filtterointi pois:
+		bw_m = removeNoise(bw_m, 1);
+		
+		// Aloitetaan inputin analysointi alueiden etsinnalla, jota kautta ohjelma siirtyy automaattisesti seuraaviin vaiheisiin:
+		detectAreas(bw_m, 1, document.getElementById("AreaSearchDst").value);
     }
 }
 
@@ -78,14 +81,27 @@ function analyzeUserInput() {
  * Piilottaa/esittaa kayttajan syottaman kuvan
  */
 function toggleImage() {
-	var toggle = document.getElementById("ToggleImage");
-	if (toggle.checked) {
-		document.getElementById("Drawing").style.display = "block";
+	if (document.getElementById("ToggleImage").checked) {
+		document.getElementById("UserImgCanvas").style.display = "block";
 	}
 	else {
-		document.getElementById("Drawing").style.display = "none";
+		document.getElementById("UserImgCanvas").style.display = "none";
 	}
 }
+
+
+/*
+ * Piilottaa/esittaa asetus -osion, jossa kayttaja pystyy tarvittaessa saatamaan kuvasta tekstiksi prosessissa kaytettaviin parametrehin.
+ */
+function toggleSettings() {
+	if (document.getElementById("ToggleSettings").checked) {
+		document.getElementById("Settings").style.display = "block";
+	}
+	else {
+		document.getElementById("Settings").style.display = "none";
+	}
+}
+
 
 /**
  * Updates the progress bar's text content
@@ -117,4 +133,84 @@ function copyToClipboard() {
     textOutput.select();
     textOutput.setSelectionRange(0, 99999);
     document.execCommand("copy");
+}
+
+
+/**
+ * Asetuksissa olevan Black And white conversion threshold method valinnan perusteella ("Automatic"|"Custom") piilotetaan/esitetaan html komponentit, joilla voi vaikuttaa mustavalkomuunnokseen
+ */
+function handleBlackAndWhiteConversionUI() {
+	var slider = document.getElementById("BlackAndWhiteThresholdSlider");
+	var num_input = document.getElementById("BlackAndWhiteThresholdValue");
+	
+	if (document.getElementById("BlackAndWhiteThresholdMethod").value === "automatic") {
+		slider.style.visibility = "hidden"; 
+		num_input.style.visibility = "hidden"; 
+	}
+	else {
+		slider.style.visibility = "visible";
+		num_input.style.visibility = "visible";
+	}
+}
+
+
+/**
+ * Kayttajan vaihtaessa asetuksissa olevan "BlackAndWhiteThresholdSlider" -sliderin arvoa --> paivittaa arvon "BlackAndWhiteThresholdValue" -inputtiin
+ */
+function blackAndWhiteThresholdSliderOnInput() {
+	var slider = document.getElementById("BlackAndWhiteThresholdSlider");
+	var num_input = document.getElementById("BlackAndWhiteThresholdValue");
+	
+	num_input.value = slider.value;
+}
+
+
+/**
+ * Kayttajan vaihtaessa asetuksissa olevan "BlackAndWhiteThresholdValue" -inputin arvoa --> paivittaa arvon "BlackAndWhiteThresholdSlider" -slideriin
+ */
+function blackAndWhiterThresholdValueOnInput() {
+	var slider = document.getElementById("BlackAndWhiteThresholdSlider");
+	var num_input = document.getElementById("BlackAndWhiteThresholdValue");
+	
+	slider.value = num_input.value;
+}
+
+
+/**
+ * Asetuksissa olevan Spacing method valinnan perusteella ("Automatic"|"Custom") piilotetaan/esitetaan html komponentit, joilla voi vaikuttaa valejen maaritykseen
+ */
+function handleSpacingUI() {
+	var slider = document.getElementById("SpacingSlider");
+	var num_input = document.getElementById("SpacingValue");
+	
+	if (document.getElementById("SpacingMethod").value === "automatic") {
+		slider.style.visibility = "hidden"; 
+		num_input.style.visibility = "hidden"; 
+	}
+	else {
+		slider.style.visibility = "visible";
+		num_input.style.visibility = "visible";
+	}
+}
+
+
+/**
+ * Kayttajan vaihtaessa asetuksissa olevan "SpacingSlider" -sliderin arvoa --> paivittaa arvon "SpacingValue" -inputtiin
+ */
+function spacingSliderOnInput() {
+	var slider = document.getElementById("SpacingSlider");
+	var num_input = document.getElementById("SpacingValue");
+	
+	num_input.value = slider.value / 100;
+}
+
+
+/**
+ * Kayttajan vaihtaessa asetuksissa olevan "SpacingValue" -inputin arvoa --> paivittaa arvon "SpacingSlider" -slideriin 
+ */
+function spacingValueOnInput() {
+	var slider = document.getElementById("SpacingSlider");
+	var num_input = document.getElementById("SpacingValue");
+	
+	slider.value = num_input.value * 100;
 }

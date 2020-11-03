@@ -2,37 +2,34 @@
  * @author Jussi Parviainen ja Harri Linna
  * @version 02.09.2020
  */
+
  
+/*-----------------------------------------------------------------*/
+/* ERI ELEMENTTIEN OLETUSTYYLEJA */
+/*-----------------------------------------------------------------*/
+
+
 html, body, h1, h2, h3, h4, h5, h6 {
-  font-family: 'Helvetica', 'Arial', sans-serif;
+	font-family: 'Helvetica', 'Arial', sans-serif;
 }
 
 html, body {
 	width: 100%;
-	margin: 0;
-	padding: 0;
+	margin: 0px;
+	padding: 0px;
 }
 
 body {
 	background-color: #F0F8FF;
 }
 
+h3 {
+	text-decoration: underline;
+}
+
 h1 {
 	text-align: center;
-}
-
-#FileDiv {
-    display: table;
-    margin: 0 auto;
-}
-
-#TextOutput {
-    width: 100%;
-    height: 512px;
-}
-
-#FileInput {
-	border: 1px;
+	margin-bottom: 15px;
 }
 
 button {
@@ -47,14 +44,84 @@ INPUT[type='number'] {
     width: 40px;
 }
 
-.args {
-    padding: 0.5em;
+
+/*-----------------------------------------------------------------*/
+/* LUOKKALLA MERKATTUJEN ELEMENTTIEN TYYLIT */
+/*-----------------------------------------------------------------*/
+
+
+.SettingsItem {
+	margin: 15px;
 }
 
-textarea {
-    font-size: 20pt;
-    border-color: gray;
+
+/*-----------------------------------------------------------------*/
+/* ID:LLA MERKATTUJEN ELEMENTTIEN TYYLIT */
+/*-----------------------------------------------------------------*/
+
+
+#MainContainer {
+	margin: 0 auto;
+	width: 99%;
+	max-width: 1000px;
+	border-radius: 8px;
+	border: 2px solid #3F4D73;
+	padding: 10px;
+	background-color: #F8FBFD;
+	-moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
 }
+
+#UserInput {
+	width: 100%;
+	margin: 0;
+}
+
+#FileInput {
+	border: 1px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#UserImgCanvasContainer {
+	width = 100%;
+}
+
+#Settings {
+	width: 100%;
+	border: 1px solid gray;
+	padding: 0;
+	margin: 0;
+	/* Tasaa koon samaksi TextOutputin kanssa: */
+	-moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#TextOutput {
+	resize: none;
+	white-space: pre;
+	overflow: auto;
+    width: 100%;
+    height: 512px;
+	border: 1px solid gray;
+	padding: 0px;
+	margin: 0px;
+	/* Tasaa koon samaksi Settings Divin kanssa: */
+	-moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+/*-----------------------------------------------------------------*/
+/* TOOLTIP TYYLIT */
+/*-----------------------------------------------------------------*/
+
 
 /* Tooltip container */
 .tooltip {
@@ -100,4 +167,41 @@ textarea {
 .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
+}
+
+
+/*-----------------------------------------------------------------*/
+/* SLIDERIN TYYLIT */
+/*-----------------------------------------------------------------*/
+
+
+.slider {
+	-webkit-appearance: none;
+	width: 200px;
+	height: 10px;
+	border-radius: 5px;  
+	background: #d3d3d3;
+	outline: none;
+	opacity: 0.7;
+	-webkit-transition: .2s;
+	transition: opacity .2s;
+	vertical-align:middle;
+}
+
+.slider::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	appearance: none;
+	width: 25px;
+	height: 25px;
+	border-radius: 50%; 
+	background: #92B9DB;
+	cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+	width: 25px;
+	height: 25px;
+	border-radius: 50%;
+	background: #92B9DB;
+	cursor: pointer;
 }
